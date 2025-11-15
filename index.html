@@ -15,6 +15,21 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <!-- تهيئة Firebase - تم إضافتها لحل مشكلة عدم الاتصال -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwefVPKU85AHzA0LU4xav23vI0zwNjdnc",
+            authDomain: "erp-m-caaf4.firebaseapp.com",
+            projectId: "erp-m-caaf4",
+            storageBucket: "erp-m-caaf4.firebasestorage.app",
+            messagingSenderId: "149444197418",
+            appId: "1:149444197418:web:a170ad50d3760f9192d753"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
     
     <style>
         /* أنماط CSS الخاصة بالتطبيق */
