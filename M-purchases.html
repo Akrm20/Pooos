@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام المشتريات - Micro ERP</title>
+    
+    <!-- روابط CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <link rel="stylesheet" href="M-purchases.css">
+    <style>
+        .supplier-card {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .supplier-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .item-card {
+            cursor: pointer;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+        .item-card:hover {
+            background-color: #f8f9fa;
+        }
+        .item-card.selected {
+            background-color: #e7f1ff;
+            border-color: #0d6efd;
+        }
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .stock-info {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        .receipt-item {
+            border-bottom: 1px dashed #dee2e6;
+            padding: 8px 0;
+        }
+        .receipt-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== الهيكل الأساسي ========== -->
+    <div class="header d-flex justify-content-between align-items-center px-3">
+        <div>
+            <button class="btn btn-outline-secondary btn-sm" id="themeToggle">
+                <i class="bi bi-sun" id="themeIcon"></i>
+            </button>
+            <button class="btn btn-outline-primary btn-sm ms-2" onclick="location.href='index.html'">
+                <i class="bi bi-cart"></i> الرئيسية
+            </button>
+        </div>
+        <h4 class="mb-0">🛒 نظام المشتريات</h4>
+        <div>
+            <span class="badge bg-info me-2" id="supplierBalance">رصيد المورد: 0.00 ر.ي</span>
+            <span class="badge bg-success" id="cartTotalBadge">السلة: 0.00 ر.ي</span>
+        </div>
+    </div>
+
+    <!-- ========== المحتوى الرئيسي ========== -->
+    <div class="main-content" id="mainContent">
+        <div class="container-fluid py-4">
+            <!-- ========== مرحلتين رئيسيتين ========== -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">👨‍💼 المرحلة 1: اختيار المورد</h5>
+                            <p class="card-text">اختر المورد الذي ستشتري منه</p>
+                            <div class="mb-3">
+                                <select class="form-select" id="supplierSelect">
+                                    <option value="">اختر المورد...</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary w-100" id="selectSupplierBtn" disabled>
+                                <i class="bi bi-check-circle"></i> تأكيد اختيار المورد
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">📦 المرحلة 2: إضافة المشتريات</h5>
+                            <p class="card-text">أضف المنتجات إلى سلة المشتريات</p>
+                            <button class="btn btn-success w-100" id="addItemsBtn" disabled>
+                                <i class="bi bi-cart-plus"></i> إضافة منتجات
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== واجهة اختيار المورد ========== -->
+            <div id="supplierSelectionView" style="display: none;">
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">👨‍💼 معلومات المورد المختار</h5>
+                        <button class="btn btn-sm btn-outline-secondary" id="changeSupplierBtn">
+                            <i class="bi bi-arrow-repeat"></i> تغيير المورد
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" id="selectedSupplierInfo">
+                            <!-- سيتم تعبئتها ديناميكياً -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== واجهة إضافة المشتريات ========== -->
+            <div id="purchasingView" style="display: none;">
+                <div class="row">
+                    <!-- الجزء الأيسر: البحث وإضافة المنتجات -->
+                    <div class="col-md-8">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">🔍 البحث عن المنتجات</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" id="itemSearchInput" 
+                                               placeholder="ابحث عن منتج بالاسم أو الكود...">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select class="form-select" id="categoryFilterSelect">
+                                            <option value="">جميع الفئات</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-outline-secondary w-100" id="clearSearchBtn">
+                                            <i class="bi bi-x-circle"></i> مسح
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- قائمة المنتجات -->
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">📦 المنتجات المتاحة</h5>
+                                <div class="text-muted" id="itemsCount">0 منتج</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3" id="itemsGrid">
+                                    <!-- سيتم تعبئتها ديناميكياً -->
+                                </div>
+                                <div class="text-center mt-3" id="noItemsFound" style="display: none;">
+                                    <p class="text-muted">لا توجد منتجات</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- الجزء الأيمن: سلة المشتريات -->
+                    <div class="col-md-4">
+                        <div class="card sticky-top" style="top: 20px;">
+                            <div class="card-header">
+                                <h5 class="mb-0">🛒 سلة المشتريات</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="purchaseCartItems" class="mb-3" style="max-height: 300px; overflow-y: auto;">
+                                    <!-- سيتم تعبئتها ديناميكياً -->
+                                </div>
+                                
+                                <div class="border-top pt-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">نوع الفاتورة:</label>
+                                        <select class="form-select" id="invoiceTypeSelect">
+                                            <option value="cash">نقدي</option>
+                                            <option value="credit">آجل</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">الضريبة:</label>
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <select class="form-select form-select-sm" id="taxTypeSelect">
+                                                    <option value="percentage">نسبة مئوية</option>
+                                                    <option value="fixed">قيمة ثابتة</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" class="form-control form-control-sm" 
+                                                       id="taxValueInput" value="0" min="0" step="0.01">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">الخصم:</label>
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <select class="form-select form-select-sm" id="discountTypeSelect">
+                                                    <option value="percentage">نسبة مئوية</option>
+                                                    <option value="fixed">قيمة ثابتة</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" class="form-control form-control-sm" 
+                                                       id="discountValueInput" value="0" min="0" step="0.01">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="totals-breakdown mb-3">
+                                        <div class="d-flex justify-content-between small border-bottom pb-1">
+                                            <span>المجموع الفرعي:</span>
+                                            <span id="purchaseSubtotal">0.00 ر.ي</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between small text-danger border-bottom pb-1">
+                                            <span>الخصم:</span>
+                                            <span id="purchaseDiscount">0.00 ر.ي</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between small text-info border-bottom pb-1">
+                                            <span>الضريبة:</span>
+                                            <span id="purchaseTax">0.00 ر.ي</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between fw-bold mt-2">
+                                            <span>الإجمالي النهائي:</span>
+                                            <span id="purchaseTotal" class="text-success">0.00 ر.ي</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <button class="btn btn-success w-100 mb-2" id="completePurchaseBtn" disabled>
+                                        <i class="bi bi-check-circle"></i> إتمام عملية الشراء
+                                    </button>
+                                    <button class="btn btn-outline-danger w-100" id="clearCartBtn">
+                                        <i class="bi bi-trash"></i> تفريغ السلة
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== نافذة إضافة مورد جديد ========== -->
+    <div class="modal fade" id="addSupplierModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">إضافة مورد جديد</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="supplierForm">
+                        <div class="mb-3">
+                            <label class="form-label">اسم المورد *</label>
+                            <input type="text" class="form-control" id="supplierName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">الهاتف</label>
+                            <input type="text" class="form-control" id="supplierPhone">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">البريد الإلكتروني</label>
+                            <input type="email" class="form-control" id="supplierEmail">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">العنوان</label>
+                            <textarea class="form-control" id="supplierAddress" rows="2"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">الرصيد الابتدائي</label>
+                            <input type="number" class="form-control" id="supplierBalance" value="0" step="0.01">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">ملاحظات</label>
+                            <textarea class="form-control" id="supplierNotes" rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="saveSupplierBtn">حفظ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== إشعار مؤقت ========== -->
+    <div id="notification" class="toast-notification" style="display: none;"></div>
+
+    <!-- ========== مكتبات JavaScript ========== -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- ملفات النظام -->
+    <script src="M-core.js"></script>
+    <script src="M-database.js"></script>
+    <script src="M-purchases.js"></script>
+</body>
+</html>

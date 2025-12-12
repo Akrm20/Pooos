@@ -1,0 +1,648 @@
+ ========== */
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #1108c1;
+            --sidebar-width: 250px;
+            --header-height: 60px;
+            --success: green;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #0dcaf0;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+
+        /* ========== ثيم النمط الفاتح ========== */
+        [data-bs-theme="light"] {
+            --bs-body-bg: #f8f9fa;
+            --bs-body-color: #212529;
+            --card-bg: #ffffff;
+            --sidebar-bg: #ffffff;
+            --sidebar-link-hover: #e9ecef;
+        }
+
+        /* ========== ثيم النمط الداكن ========== */
+        [data-bs-theme="dark"] {
+            --bs-body-bg: #121212;
+            --bs-body-color: #e0e0e0;
+            --card-bg: #1e1e1e;
+            --sidebar-bg: #1e1e1e;
+            --sidebar-link-hover: #2c2c2c;
+            --bs-card-bg: var(--card-bg);
+            --bs-card-color: var(--bs-body-color);
+        }
+
+        /* ========== أنماط الجسم العامة ========== */
+        body {
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+            transition: background-color 0.3s, color 0.3s;
+            padding-top: var(--header-height);
+        }
+
+        /* ========== أنماط البطاقات العامة ========== */
+        .card {
+            background-color: var(--card-bg);
+            transition: background-color 0.3s;
+            border: 1px solid var(--sidebar-link-hover);
+        }
+
+        /* ========== أنماط الرأس العلوي ========== */
+        .header {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            height: var(--header-height);
+            z-index: 1030;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--sidebar-link-hover);
+            display: flex;
+            align-items: center;
+        }
+
+        /* ========== أنماط بطاقات المؤشرات ========== */
+        .kpi-card {
+            text-align: center;
+            padding: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white !important;
+            margin: 0.5rem 0;
+        }
+
+        /* ========== أنماط سلة المشتريات ========== */
+        #posCart {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            background-color: var(--card-bg);
+            z-index: 1050;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            padding-top: var(--header-height);
+        }
+
+        #posCart.show {
+            transform: translateX(0);
+        }
+
+        /* ========== زر السلة العائم (FAB) ========== */
+        .fab-cart {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1040;
+        }
+
+        /* ========== عداد السلة ========== */
+        .cart-counter {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545 !important;
+            color: white !important;
+            border-radius: 50%;
+            padding: 2px 7px;
+            font-size: 0.75rem;
+        }
+
+        /* ========== نقطة البيع ========== */
+        .pos-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .quick-suggestions {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding: 10px 0;
+            margin-bottom: 15px;
+        }
+
+        .suggestion-item {
+            flex: 0 0 auto;
+            width: 80px;
+            text-align: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 2px solid var(--sidebar-link-hover);
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-item:hover {
+            border-color: var(--primary-color);
+            transform: scale(1.05);
+        }
+
+        .suggestion-emoji {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+
+        .suggestion-name {
+            font-size: 0.7rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ========== شارة الكمية على المنتجات ========== */
+        .quantity-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--warning);
+            color: #000;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid var(--card-bg);
+            z-index: 1;
+        }
+
+        /* ========== الإشعارات المؤقتة ========== */
+        .toast-notification {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1060;
+            animation: slideDown 0.3s ease;
+            background-color: green;
+        }
+
+        @keyframes slideDown {
+            from { top: -50px; opacity: 0; }
+            to { top: 70px; opacity: 1; }
+        }
+
+        /* ========== عرض الفئات في نقطة البيع ========== */
+        #categoriesView .category-count {
+            font-size: 0.8rem;
+            color: var(--bs-secondary);
+            background: var(--sidebar-link-hover);
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            margin-top: 0.5rem;
+        }
+
+        /* ========== بطاقات المنتجات ========== */
+        .product-card {
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--sidebar-link-hover);
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        .product-card.added {
+            border: 2px solid var(--success);
+            box-shadow: 0 0 15px rgba(40, 167, 69, 0.3);
+        }
+
+        /* حاوية الصورة */
+        .product-image-container {
+            width: 100%;
+            height: 120px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            position: relative;
+        }
+
+        /* الصورة الفعلية */
+        .product-image-real {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover .product-image-real {
+            transform: scale(1.05);
+        }
+
+        /* مكان الإيموجي عندما لا توجد صورة */
+        .product-emoji-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* معلومات المنتج */
+        .product-info {
+            padding: 12px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: var(--card-bg);
+        }
+
+        .product-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 4px;
+            color: var(--bs-body-color);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 2.6rem;
+        }
+
+        .product-code {
+            font-size: 0.7rem;
+            color: var(--bs-secondary);
+            margin-bottom: 8px;
+        }
+
+        .product-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .product-price {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .product-stock {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+
+        /* السلة العائمة */
+        .floating-cart {
+            position: fixed;
+            bottom: 90px;
+            left: 20px;
+            background: var(--primary-color);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1040;
+            cursor: pointer;
+            display: none;
+        }
+
+        .floating-cart-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .floating-cart.show {
+            display: flex;
+        }
+
+        #floatingCartTotal {
+            color: #fcfcfc !important;
+            font-size: medium;
+            font-weight: bold;
+        }
+
+        /* نتائج البحث الفوري */
+        .search-results-container {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--sidebar-link-hover);
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* عرض الفئات */
+        #categoriesView .category-card {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--card-bg);
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #categoriesView .category-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        #categoriesView .category-icon {
+            font-size: 3.0rem;
+            margin-bottom: 0.5rem;
+        }
+
+        #categoriesView .category-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* رأس عرض المنتجات */
+        #productsView .view-header {
+            background: var(--sidebar-link-hover);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        /* استعلامات الوسائط */
+        @media (min-width: 768px) {
+            #posCart {
+                left: 0;
+                width: 350px;
+                transform: translateX(-100%);
+            }
+            
+            .fab-cart {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .pos-container {
+                max-width: 100%;
+                padding: 0.5rem;
+            }
+            
+            #productsGrid .col-4 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+            
+            #posCart {
+                width: 100%;
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #productsGrid .col-4 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+            
+            .suggestion-item {
+                min-width: 60px;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* تحسينات للشاشات الصغيرة */
+        @media (max-width: 576px) {
+            .product-image-container {
+                height: 100px;
+            }
+            
+            .product-emoji-placeholder {
+                font-size: 2.5rem;
+            }
+            
+            .product-name {
+                font-size: 0.8rem;
+                min-height: 2.4rem;
+            }
+            
+            .product-price {
+                font-size: 0.85rem;
+            }
+        }
+
+        /* تحسينات للوضع الداكن */
+        [data-bs-theme="dark"] .product-image-container {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+        }
+
+        [data-bs-theme="dark"] .product-emoji-placeholder {
+            background: linear-gradient(135deg, #4fd1c7 0%, #63b3ed 100%);
+        }
+
+        /* تأثيرات خاصة للبطاقات */
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        /* تحسينات نتائج البحث */
+        .search-result-item {
+            transition: background-color 0.2s ease;
+        }
+
+        .search-result-item:hover {
+            background-color: var(--sidebar-link-hover);
+        }
+
+        .search-result-item:active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        /* تحسينات إضافية لواجهة POS */
+        .header {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .main-content {
+            padding-bottom: 100px; /* مساحة للأزرار العائمة */
+        }
+        
+        .badge-pill {
+            border-radius: 20px;
+        }
+        
+        /* تحسين شريط البحث */
+        #productSearchInput {
+            padding-right: 45px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236c757d' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 18px;
+        }
+        
+        /* تحسين بطاقات المنتجات */
+        .product-card {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .product-card:active {
+            transform: scale(0.98);
+        }
+        
+        /* تحسين السلة */
+        .cart-item {
+            transition: background-color 0.2s ease;
+        }
+        
+        .cart-item:hover {
+            background-color: rgba(0,0,0,0.02);
+        }
+        
+        /* أزرار تحكم الكمية */
+        .qty-btn-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .qty-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .qty-display {
+            min-width: 40px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        /* رسالة عدم وجود منتجات */
+        .empty-state {
+            padding: 3rem 1rem;
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        /* تحسين العرض على الشاشات الصغيرة */
+        @media (max-width: 576px) {
+            .header h4 {
+                font-size: 1.1rem;
+            }
+            
+            .suggestion-item {
+                min-width: 70px;
+            }
+            
+            .suggestion-emoji {
+                font-size: 2rem;
+            }
+            
+            .product-card {
+                margin-bottom: 10px;
+            }
+        }
+        
+        /* تحسينات للوضع الداكن */
+        [data-bs-theme="dark"] .cart-item:hover {
+            background-color: rgba(255,255,255,0.05);
+        }
+        
+        [data-bs-theme="dark"] .empty-state {
+            color: #adb5bd;
+        }
+        
+        /* شريط تقدم التحميل */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: white;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4361ee;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }

@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام المحاسبة - Micro ERP</title>
+    
+    <!-- روابط CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="M-accounting.css">
+</head>
+<body>
+    <!-- ========== الهيكل الأساسي ========== -->
+    <div class="header d-flex justify-content-between align-items-center px-3">
+        <div>
+            <button class="btn btn-outline-secondary btn-sm" id="themeToggle">
+                <i class="bi bi-sun" id="themeIcon"></i>
+            </button>
+            <button class="btn btn-outline-primary btn-sm ms-2" onclick="location.href='index.html'">
+                <i class="bi bi-cart"></i> الرئيسية
+            </button>
+        </div>
+        <h4 class="mb-0">📊 نظام المحاسبة</h4>
+        <div>
+            <span class="badge bg-info me-2">الفترة: <span id="currentPeriod">2025</span></span>
+            <span class="badge bg-success" id="accountingStatus">نشط</span>
+        </div>
+    </div>
+
+    <!-- ========== الأزرار السريعة ========== -->
+    <div class="quick-actions-bar">
+        <div class="container-fluid">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <button class="btn btn-success w-100" id="collectFromCustomersBtn">
+                        <i class="bi bi-cash-coin"></i> تحصيل من العملاء
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-primary w-100" id="paySuppliersBtn">
+                        <i class="bi bi-credit-card"></i> سداد الموردين
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-warning w-100" id="salesReturnBtn">
+                        <i class="bi bi-arrow-return-left"></i> مرتجع مبيعات
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-danger w-100" id="purchaseReturnBtn">
+                        <i class="bi bi-arrow-return-right"></i> مرتجع مشتريات
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== المحتوى الرئيسي ========== -->
+    <div class="main-content" id="mainContent">
+        <div class="container-fluid py-4">
+            <!-- ========== تبويبات المحاسبة ========== -->
+            <ul class="nav nav-tabs" id="accountingTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="chart-tab" data-bs-toggle="tab" data-bs-target="#chart-tab-pane" type="button">
+                        <i class="bi bi-diagram-3"></i> شجرة الحسابات
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="journal-tab" data-bs-toggle="tab" data-bs-target="#journal-tab-pane" type="button">
+                        <i class="bi bi-journal"></i> القيود اليومية
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="ledger-tab" data-bs-toggle="tab" data-bs-target="#ledger-tab-pane" type="button">
+                        <i class="bi bi-book"></i> الاستاذ العام
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="trial-tab" data-bs-toggle="tab" data-bs-target="#trial-tab-pane" type="button">
+                        <i class="bi bi-scale"></i> ميزان المراجعة
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tax-tab" data-bs-toggle="tab" data-bs-target="#tax-tab-pane" type="button">
+                        <i class="bi bi-percent"></i> تسوية الضرائب
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="accountingTabContent">
+                <!-- ========== تبويب شجرة الحسابات ========== -->
+                <div class="tab-pane fade show active" id="chart-tab-pane" role="tabpanel">
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">إضافة/تعديل حساب</h5>
+                                    <button class="btn btn-sm btn-outline-success" id="refreshAccountsBtn">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <form id="accountForm">
+                                        <input type="hidden" id="accountId">
+                                        <div class="mb-3">
+                                            <label class="form-label">رقم الحساب *</label>
+                                            <input type="text" class="form-control" id="accountCode" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">اسم الحساب *</label>
+                                            <input type="text" class="form-control" id="accountName" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">نوع الحساب *</label>
+                                            <select class="form-select" id="accountType" required>
+                                                <option value="">اختر النوع</option>
+                                                <option value="asset">أصول</option>
+                                                <option value="liability">خصوم</option>
+                                                <option value="equity">حقوق ملكية</option>
+                                                <option value="revenue">إيرادات</option>
+                                                <option value="expense">مصروفات</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">الحساب الرئيسي</label>
+                                            <select class="form-select" id="accountParent">
+                                                <option value="">حساب رئيسي</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">الوصف</label>
+                                            <textarea class="form-control" id="accountDescription" rows="2"></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">الرصيد الافتتاحي</label>
+                                            <input type="number" class="form-control" id="accountOpeningBalance" value="0" step="0.01">
+                                        </div>
+                                        <div class="d-grid gap-2">
+                                            <button type="button" class="btn btn-primary" id="saveAccountBtn">حفظ الحساب</button>
+                                            <button type="button" class="btn btn-outline-secondary" id="resetAccountBtn">جديد</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <!-- ملخص الحسابات -->
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0">ملخص الحسابات</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="summary-item">
+                                                <div class="summary-label">الأصول</div>
+                                                <div class="summary-value text-success" id="assetsTotal">0.00</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="summary-item">
+                                                <div class="summary-label">الخصوم</div>
+                                                <div class="summary-value text-danger" id="liabilitiesTotal">0.00</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="summary-item">
+                                                <div class="summary-label">حقوق الملكية</div>
+                                                <div class="summary-value text-primary" id="equityTotal">0.00</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="summary-item">
+                                                <div class="summary-label">صافي الربح</div>
+                                                <div class="summary-value text-info" id="netProfit">0.00</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">شجرة الحسابات</h5>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-primary me-2" id="expandAllBtn">
+                                            <i class="bi bi-plus-circle"></i> توسيع الكل
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary" id="collapseAllBtn">
+                                            <i class="bi bi-dash-circle"></i> طي الكل
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover" id="accountsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th width="15%">رقم الحساب</th>
+                                                    <th>اسم الحساب</th>
+                                                    <th width="15%">النوع</th>
+                                                    <th width="15%" class="text-end">الرصيد</th>
+                                                    <th width="10%">الإجراءات</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="accountsTableBody">
+                                                <!-- سيتم تعبئتها ديناميكياً -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== تبويب القيود اليومية ========== -->
+                <div class="tab-pane fade" id="journal-tab-pane" role="tabpanel">
+                    <div class="row mt-4">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">قيد يومية جديد</h5>
+                                    <div class="balance-status" id="journalBalanceStatus">
+                                        <span class="badge bg-danger">غير متوازن</span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <form id="journalEntryForm">
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label class="form-label">التاريخ *</label>
+                                                <input type="date" class="form-control" id="journalDate" required>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">المرجع *</label>
+                                                <input type="text" class="form-control" id="journalReference" required>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">الوصف *</label>
+                                                <input type="text" class="form-control" id="journalDescription" required>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="journal-entries">
+                                            <div class="entry-header">
+                                                <div class="row">
+                                                    <div class="col-md-5">الحساب</div>
+                                                    <div class="col-md-3 text-center">مدين</div>
+                                                    <div class="col-md-3 text-center">دائن</div>
+                                                    <div class="col-md-1"></div>
+                                                </div>
+                                            </div>
+                                            <div id="journalEntriesContainer">
+                                                <!-- سيتم إضافة الأسطر ديناميكياً -->
+                                            </div>
+                                            <div class="entry-footer">
+                                                <button type="button" class="btn btn-sm btn-outline-primary" id="addJournalLineBtn">
+                                                    <i class="bi bi-plus-circle"></i> إضافة سطر
+                                                </button>
+                                                <div class="totals">
+                                                    <span>إجمالي المدين: <strong id="totalDebit">0.00</strong></span>
+                                                    <span>إجمالي الدائن: <strong id="totalCredit">0.00</strong></span>
+                                                    <span>الفرق: <strong id="balanceDifference">0.00</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="d-grid gap-2 mt-3">
+                                            <button type="button" class="btn btn-success" id="saveJournalBtn" disabled>
+                                                <i class="bi bi-check-circle"></i> حفظ القيد
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <!-- قائمة القيود الأخيرة -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">آخر القيود</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="recentJournalsList">
+                                        <!-- سيتم تعبئتها ديناميكياً -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- أنواع القيود -->
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0">أنواع القيود السريعة</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-success" id="quickReceiptBtn">
+                                            <i class="bi bi-cash"></i> قيد سند قبض
+                                        </button>
+                                        <button class="btn btn-outline-primary" id="quickPaymentBtn">
+                                            <i class="bi bi-credit-card"></i> قيد سند صرف
+                                        </button>
+                                        <button class="btn btn-outline-warning" id="quickTransferBtn">
+                                            <i class="bi bi-arrow-left-right"></i> قيد تحويل
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- جدول جميع القيود -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">سجل القيود اليومية</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="journalsTable">
+                                    <thead>
+                                        <tr>
+                                            <th width="10%">التاريخ</th>
+                                            <th width="15%">المرجع</th>
+                                            <th>الوصف</th>
+                                            <th width="15%" class="text-end">المدين</th>
+                                            <th width="15%" class="text-end">الدائن</th>
+                                            <th width="10%">الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="journalsTableBody">
+                                        <!-- سيتم تعبئتها ديناميكياً -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== تبويب الاستاذ العام ========== -->
+                <div class="tab-pane fade" id="ledger-tab-pane" role="tabpanel">
+                    <div class="row mt-4">
+                        <div class="col-md-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">اختيار الحساب</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <select class="form-select" id="ledgerAccountSelect">
+                                            <option value="">اختر الحساب...</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">من تاريخ</label>
+                                        <input type="date" class="form-control" id="ledgerFromDate">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">إلى تاريخ</label>
+                                        <input type="date" class="form-control" id="ledgerToDate">
+                                    </div>
+                                    <button class="btn btn-primary w-100" id="showLedgerBtn">عرض الاستاذ</button>
+                                    
+                                    <div class="mt-4">
+                                        <h6>معلومات الحساب</h6>
+                                        <div class="account-info">
+                                            <div><strong>الرصيد الافتتاحي:</strong> <span id="openingBalance">0.00</span></div>
+                                            <div><strong>إجمالي الحركات:</strong> <span id="totalMovements">0</span></div>
+                                            <div><strong>الرصيد الحالي:</strong> <span id="currentBalance">0.00</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-9">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">استاذ حساب: <span id="selectedAccountName">-</span></h5>
+                                    <button class="btn btn-sm btn-outline-primary" id="printLedgerBtn">
+                                        <i class="bi bi-printer"></i> طباعة
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover" id="ledgerTable">
+                                            <thead>
+                                                <tr>
+                                                    <th width="10%">التاريخ</th>
+                                                    <th width="15%">المرجع</th>
+                                                    <th>الوصف</th>
+                                                    <th width="15%" class="text-end">مدين</th>
+                                                    <th width="15%" class="text-end">دائن</th>
+                                                    <th width="15%" class="text-end">الرصيد</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="ledgerTableBody">
+                                                <!-- سيتم تعبئتها ديناميكياً -->
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="table-light">
+                                                    <td colspan="3" class="text-end"><strong>المجموع:</strong></td>
+                                                    <td class="text-end"><strong id="ledgerTotalDebit">0.00</strong></td>
+                                                    <td class="text-end"><strong id="ledgerTotalCredit">0.00</strong></td>
+                                                    <td class="text-end"><strong id="ledgerFinalBalance">0.00</strong></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== تبويب ميزان المراجعة ========== -->
+                <div class="tab-pane fade" id="trial-tab-pane" role="tabpanel">
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">ميزان المراجعة</h5>
+                                    <div>
+                                        <input type="date" class="form-control d-inline w-auto" id="trialBalanceDate" value="">
+                                        <button class="btn btn-sm btn-primary ms-2" id="generateTrialBalanceBtn">
+                                            <i class="bi bi-arrow-clockwise"></i> توليد
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success ms-2" id="printTrialBalanceBtn">
+                                            <i class="bi bi-printer"></i> طباعة
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="trialBalanceTable">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th rowspan="2">رقم الحساب</th>
+                                                    <th rowspan="2">اسم الحساب</th>
+                                                    <th colspan="2" class="text-center">الأرصدة الافتتاحية</th>
+                                                    <th colspan="2" class="text-center">الحركات خلال الفترة</th>
+                                                    <th colspan="2" class="text-center">الأرصدة الختامية</th>
+                                                </tr>
+                                                <tr>
+                                                    <th class="text-center">مدين</th>
+                                                    <th class="text-center">دائن</th>
+                                                    <th class="text-center">مدين</th>
+                                                    <th class="text-center">دائن</th>
+                                                    <th class="text-center">مدين</th>
+                                                    <th class="text-center">دائن</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="trialBalanceTableBody">
+                                                <!-- سيتم تعبئتها ديناميكياً -->
+                                            </tbody>
+                                            <tfoot class="table-light">
+                                                <tr>
+                                                    <td colspan="2" class="text-end"><strong>المجموع:</strong></td>
+                                                    <td class="text-center"><strong id="tbOpeningDebit">0.00</strong></td>
+                                                    <td class="text-center"><strong id="tbOpeningCredit">0.00</strong></td>
+                                                    <td class="text-center"><strong id="tbMovementDebit">0.00</strong></td>
+                                                    <td class="text-center"><strong id="tbMovementCredit">0.00</strong></td>
+                                                    <td class="text-center"><strong id="tbClosingDebit">0.00</strong></td>
+                                                    <td class="text-center"><strong id="tbClosingCredit">0.00</strong></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    
+                                    <!-- ملخص ميزان المراجعة -->
+                                    <div class="row mt-4">
+                                        <div class="col-md-6">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h6 class="mb-0">التحقق من التوازن</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="balance-check">
+                                                        <div class="mb-2">
+                                                            <strong>الأرصدة الافتتاحية:</strong>
+                                                            <span class="float-end" id="checkOpening">0.00 = 0.00 ✓</span>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>الحركات خلال الفترة:</strong>
+                                                            <span class="float-end" id="checkMovements">0.00 = 0.00 ✓</span>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>الأرصدة الختامية:</strong>
+                                                            <span class="float-end" id="checkClosing">0.00 = 0.00 ✓</span>
+                                                        </div>
+                                                        <div class="alert alert-success mt-3" id="balanceCheckResult">
+                                                            ✓ الميزان متوازن
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h6 class="mb-0">المجموعات الرئيسية</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="account-group">
+                                                        <div class="mb-2">
+                                                            <strong>الأصول:</strong>
+                                                            <span class="float-end text-success" id="tbAssetsTotal">0.00</span>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>الخصوم:</strong>
+                                                            <span class="float-end text-danger" id="tbLiabilitiesTotal">0.00</span>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>حقوق الملكية:</strong>
+                                                            <span class="float-end text-primary" id="tbEquityTotal">0.00</span>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>الإيرادات:</strong>
+                                                            <span class="float-end text-info" id="tbRevenueTotal">0.00</span>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>المصروفات:</strong>
+                                                            <span class="float-end text-warning" id="tbExpenseTotal">0.00</span>
+                                                        </div>
+                                                        <div class="border-top pt-2 mt-2">
+                                                            <strong>صافي الدخل:</strong>
+                                                            <span class="float-end" id="tbNetIncome">0.00</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== تبويب تسوية الضرائب ========== -->
+                <div class="tab-pane fade" id="tax-tab-pane" role="tabpanel">
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">حسابات الضرائب</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="tax-accounts">
+                                        <div class="tax-account-item">
+                                            <div class="tax-account-name">ضريبة المخرجات (المبيعات)</div>
+                                            <div class="tax-account-balance text-danger" id="taxOutputBalance">0.00</div>
+                                            <div class="tax-account-code">2041</div>
+                                        </div>
+                                        <div class="tax-account-item">
+                                            <div class="tax-account-name">ضريبة المدخلات (المشتريات)</div>
+                                            <div class="tax-account-balance text-success" id="taxInputBalance">0.00</div>
+                                            <div class="tax-account-code">1070</div>
+                                        </div>
+                                        <div class="tax-account-summary mt-3 p-3 bg-light">
+                                            <div class="d-flex justify-content-between">
+                                                <strong>صافي الضريبة المستحقة:</strong>
+                                                <span class="text-danger" id="netTaxPayable">0.00</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mt-2">
+                                                <strong>حالة التسوية:</strong>
+                                                <span class="badge bg-success" id="taxSettlementStatus">مدفوعة</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- تسوية الضريبة -->
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0">تسوية الضريبة</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="taxSettlementForm">
+                                        <div class="mb-3">
+                                            <label class="form-label">تاريخ التسوية *</label>
+                                            <input type="date" class="form-control" id="taxSettlementDate" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">مبلغ التسوية *</label>
+                                            <input type="number" class="form-control" id="taxSettlementAmount" required step="0.01">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">طريقة الدفع *</label>
+                                            <select class="form-select" id="taxPaymentMethod" required>
+                                                <option value="cash">نقدي</option>
+                                                <option value="bank">بنكي</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">المرجع</label>
+                                            <input type="text" class="form-control" id="taxSettlementReference">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">ملاحظات</label>
+                                            <textarea class="form-control" id="taxSettlementNotes" rows="2"></textarea>
+                                        </div>
+                                        <button type="button" class="btn btn-success w-100" id="settleTaxBtn">
+                                            <i class="bi bi-check-circle"></i> تسوية الضريبة
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <!-- سجل تسويات الضرائب -->
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">سجل التسويات</h5>
+                                    <button class="btn btn-sm btn-outline-primary" id="refreshTaxSettlementsBtn">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover" id="taxSettlementsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>التاريخ</th>
+                                                    <th>المبلغ</th>
+                                                    <th>الطريقة</th>
+                                                    <th>الحالة</th>
+                                                    <th>الإجراءات</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="taxSettlementsTableBody">
+                                                <!-- سيتم تعبئتها ديناميكياً -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- تقرير الضريبة -->
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0">تقرير الضريبة</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="tax-report">
+                                        <div class="row mb-3">
+                                            <div class="col-6">
+                                                <label>الفترة من:</label>
+                                                <input type="date" class="form-control" id="taxReportFromDate">
+                                            </div>
+                                            <div class="col-6">
+                                                <label>الفترة إلى:</label>
+                                                <input type="date" class="form-control" id="taxReportToDate">
+                                            </div>
+                                        </div>
+                                        <div class="tax-report-summary">
+                                            <div class="mb-2">
+                                                <strong>إجمالي ضريبة المبيعات:</strong>
+                                                <span class="float-end text-danger" id="totalTaxSales">0.00</span>
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>إجمالي ضريبة المشتريات:</strong>
+                                                <span class="float-end text-success" id="totalTaxPurchases">0.00</span>
+                                            </div>
+                                            <div class="mb-2 border-top pt-2">
+                                                <strong>صافي الضريبة المستحقة:</strong>
+                                                <span class="float-end" id="reportNetTax">0.00</span>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-primary w-100 mt-3" id="generateTaxReportBtn">
+                                            <i class="bi bi-file-earmark-text"></i> توليد التقرير
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== النوافذ المنبثقة للعمليات السريعة ========== -->
+    
+    <!-- نافذة تحصيل من العملاء -->
+    <div class="modal fade" id="collectFromCustomersModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">تحصيل من العملاء</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="collectForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">اختر العميل *</label>
+                                <select class="form-select" id="collectCustomerSelect" required>
+                                    <option value="">اختر العميل...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">المبلغ *</label>
+                                <input type="number" class="form-control" id="collectAmount" required step="0.01" min="0.01">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">تاريخ التحصيل *</label>
+                                <input type="date" class="form-control" id="collectDate" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">طريقة الدفع *</label>
+                                <select class="form-select" id="collectPaymentMethod" required>
+                                    <option value="cash">نقدي</option>
+                                    <option value="bank">بنكي</option>
+                                    <option value="check">شيك</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">المرجع</label>
+                            <input type="text" class="form-control" id="collectReference">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">ملاحظات</label>
+                            <textarea class="form-control" id="collectNotes" rows="2"></textarea>
+                        </div>
+                        
+                        <!-- معلومات العميل -->
+                        <div class="card bg-light mb-3">
+                            <div class="card-body">
+                                <h6>معلومات العميل</h6>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <strong>الرصيد الحالي:</strong> <span id="customerCurrentBalance">0.00</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>الرصيد بعد التحصيل:</strong> <span id="customerBalanceAfter">0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-success" id="confirmCollectBtn">تحصيل</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- نافذة سداد الموردين -->
+    <div class="modal fade" id="paySuppliersModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">سداد للموردين</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="paymentForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">اختر المورد *</label>
+                                <select class="form-select" id="paymentSupplierSelect" required>
+                                    <option value="">اختر المورد...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">المبلغ *</label>
+                                <input type="number" class="form-control" id="paymentAmount" required step="0.01" min="0.01">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">تاريخ السداد *</label>
+                                <input type="date" class="form-control" id="paymentDate" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">طريقة الدفع *</label>
+                                <select class="form-select" id="paymentPaymentMethod" required>
+                                    <option value="cash">نقدي</option>
+                                    <option value="bank">بنكي</option>
+                                    <option value="check">شيك</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">المرجع</label>
+                            <input type="text" class="form-control" id="paymentReference">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">ملاحظات</label>
+                            <textarea class="form-control" id="paymentNotes" rows="2"></textarea>
+                        </div>
+                        
+                        <!-- معلومات المورد -->
+                        <div class="card bg-light mb-3">
+                            <div class="card-body">
+                                <h6>معلومات المورد</h6>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <strong>الرصيد الحالي:</strong> <span id="supplierCurrentBalance">0.00</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>الرصيد بعد السداد:</strong> <span id="supplierBalanceAfter">0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="confirmPaymentBtn">سداد</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- نافذة مرتجع مبيعات -->
+    <div class="modal fade" id="salesReturnModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">مرتجع مبيعات</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="salesReturnForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">اختر العميل *</label>
+                                <select class="form-select" id="salesReturnCustomerSelect" required>
+                                    <option value="">اختر العميل...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">اختر الفاتورة</label>
+                                <select class="form-select" id="salesReturnInvoiceSelect">
+                                    <option value="">اختر الفاتورة...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">تاريخ المرتجع *</label>
+                                <input type="date" class="form-control" id="salesReturnDate" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">المبلغ *</label>
+                                <input type="number" class="form-control" id="salesReturnAmount" required step="0.01" min="0.01">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">سبب المرتجع *</label>
+                            <select class="form-select" id="salesReturnReason" required>
+                                <option value="">اختر السبب...</option>
+                                <option value="damaged">تلف المنتج</option>
+                                <option value="wrong_item">منتج خاطئ</option>
+                                <option value="defective">منتج معيب</option>
+                                <option value="other">أسباب أخرى</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">تفاصيل المرتجع</label>
+                            <textarea class="form-control" id="salesReturnDetails" rows="3" placeholder="وصف تفصيلي للمرتجع..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-warning" id="confirmSalesReturnBtn">تسجيل المرتجع</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- نافذة مرتجع مشتريات -->
+    <div class="modal fade" id="purchaseReturnModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">مرتجع مشتريات</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="purchaseReturnForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">اختر المورد *</label>
+                                <select class="form-select" id="purchaseReturnSupplierSelect" required>
+                                    <option value="">اختر المورد...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">اختر فاتورة الشراء</label>
+                                <select class="form-select" id="purchaseReturnInvoiceSelect">
+                                    <option value="">اختر الفاتورة...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">تاريخ المرتجع *</label>
+                                <input type="date" class="form-control" id="purchaseReturnDate" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">المبلغ *</label>
+                                <input type="number" class="form-control" id="purchaseReturnAmount" required step="0.01" min="0.01">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">سبب المرتجع *</label>
+                            <select class="form-select" id="purchaseReturnReason" required>
+                                <option value="">اختر السبب...</option>
+                                <option value="damaged">تلف المنتج</option>
+                                <option value="wrong_item">منتج خاطئ</option>
+                                <option value="defective">منتج معيب</option>
+                                <option value="other">أسباب أخرى</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">تفاصيل المرتجع</label>
+                            <textarea class="form-control" id="purchaseReturnDetails" rows="3" placeholder="وصف تفصيلي للمرتجع..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-danger" id="confirmPurchaseReturnBtn">تسجيل المرتجع</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== مكتبات JavaScript ========== -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- ملفات النظام -->
+    <script src="M-core.js"></script>
+    <script src="M-database.js"></script>
+    <script src="M-accounting.js"></script>
+</body>
+</html>

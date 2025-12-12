@@ -1,0 +1,217 @@
+/* M-setting.css - أنماط صفحة إعدادات النظام */
+
+/* تخصيص واجهة الإعدادات */
+.settings-section {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.setting-card {
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.setting-card:hover {
+    border-color: #0d6efd;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.1);
+}
+
+.setting-card.active {
+    border-color: #0d6efd;
+    background-color: #f0f7ff;
+}
+
+.form-section {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #f8f9fa;
+}
+
+.form-section h6 {
+    color: #0d6efd;
+    border-bottom: 2px solid #0d6efd;
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+}
+
+/* تحسين جداول المستخدمين */
+#usersTable th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #495057;
+}
+
+/* تحسين منطقة النسخ الاحتياطي */
+.backup-card {
+    border: 2px dashed #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.backup-card:hover {
+    border-color: #0d6efd;
+    transform: translateY(-2px);
+}
+
+.danger-zone {
+    border: 2px solid #dc3545;
+}
+
+.danger-zone .card-header {
+    background-color: #dc3545 !important;
+}
+
+/* رأس الصفحة */
+.header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 15px 0;
+    margin-bottom: 0;
+}
+
+.header h4 {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+/* المحتوى الرئيسي */
+.main-content {
+    padding: 20px;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 80px);
+}
+
+/* تحسين النوافذ المنبثقة */
+.modal-header.bg-danger {
+    background-color: #dc3545;
+}
+
+.modal-header.bg-danger .modal-title {
+    color: white;
+}
+
+/* رسومات متحركة */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* تخصيص الأزرار */
+.btn-danger {
+    transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* تخصيص حقول الإدخال */
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* شريط التنقل بين الأقسام */
+.settings-nav {
+    background-color: white;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav-tabs .nav-link {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+    color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+/* حالة قاعدة البيانات */
+#dbStatus {
+    font-size: 0.85rem;
+    padding: 5px 10px;
+}
+
+/* تحسين العرض على الشاشات الصغيرة */
+@media (max-width: 768px) {
+    .header {
+        padding: 10px 0;
+    }
+    
+    .header h4 {
+        font-size: 1.2rem;
+    }
+    
+    .main-content {
+        padding: 10px;
+    }
+    
+    .setting-card {
+        margin-bottom: 10px;
+    }
+    
+    .form-section {
+        padding: 15px;
+    }
+}
+
+/* دعم الوضع الداكن */
+[data-bs-theme="dark"] {
+    .header {
+        background-color: #2c3e50;
+        border-bottom-color: #34495e;
+    }
+    
+    .main-content {
+        background-color: #1a252f;
+    }
+    
+    .form-section {
+        background-color: #2c3e50;
+        border-color: #34495e;
+    }
+    
+    .setting-card {
+        background-color: #2c3e50;
+        color: #ecf0f1;
+    }
+    
+    .setting-card:hover {
+        border-color: #3498db;
+    }
+    
+    .card {
+        background-color: #2c3e50;
+        color: #ecf0f1;
+        border-color: #34495e;
+    }
+    
+    .card-header {
+        background-color: #34495e;
+        border-bottom-color: #2c3e50;
+    }
+}

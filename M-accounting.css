@@ -1,0 +1,388 @@
+/* M-accounting.css - أنماط نظام المحاسبة */
+
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --success-color: #27ae60;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --info-color: #1abc9c;
+    --light-color: #ecf0f1;
+    --dark-color: #2c3e50;
+}
+
+[data-bs-theme="dark"] {
+    --primary-color: #34495e;
+    --secondary-color: #2980b9;
+    --light-color: #2c3e50;
+    --dark-color: #ecf0f1;
+}
+
+/* الهيكل الأساسي */
+.header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 15px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.quick-actions-bar {
+    background-color: var(--light-color);
+    padding: 10px 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.quick-actions-bar .btn {
+    font-weight: bold;
+    padding: 10px;
+}
+
+.main-content {
+    min-height: calc(100vh - 140px);
+    background-color: #f8f9fa;
+}
+
+/* تبويبات المحاسبة */
+.nav-tabs {
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.nav-tabs .nav-link {
+    color: var(--dark-color);
+    font-weight: 500;
+    border: none;
+    padding: 12px 20px;
+    margin-right: 5px;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 5px 5px 0 0;
+}
+
+.nav-tabs .nav-link i {
+    margin-left: 5px;
+}
+
+/* شجرة الحسابات */
+.account-type-header {
+    background-color: var(--light-color);
+    font-size: 1.1em;
+}
+
+.account-type-header td {
+    padding: 10px 15px !important;
+}
+
+.child-account .child-indent {
+    color: var(--secondary-color);
+    margin-left: 20px;
+    font-weight: bold;
+}
+
+.summary-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+.summary-label {
+    color: var(--dark-color);
+    font-size: 0.9em;
+}
+
+.summary-value {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+/* القيود اليومية */
+.journal-entries {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.entry-header {
+    background-color: var(--light-color);
+    padding: 10px 15px;
+    font-weight: bold;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.entry-footer {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.entry-footer .totals {
+    display: flex;
+    gap: 20px;
+}
+
+.journal-line {
+    padding: 10px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    align-items: center;
+}
+
+.journal-line:last-child {
+    border-bottom: none;
+}
+
+.balance-status {
+    font-size: 0.9em;
+}
+
+.recent-journal-item {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.recent-journal-item:hover {
+    background-color: var(--light-color);
+}
+
+.recent-journal-item:last-child {
+    border-bottom: none;
+}
+
+/* الاستاذ العام */
+.account-info {
+    background-color: var(--light-color);
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+.account-info div {
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.account-info div:last-child {
+    margin-bottom: 0;
+}
+
+/* ميزان المراجعة */
+.trial-balance-table th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.trial-balance-table td {
+    text-align: center;
+}
+
+.balance-check {
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.account-group {
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+/* الضرائب */
+.tax-account-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    margin-bottom: 10px;
+    background-color: white;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+}
+
+.tax-account-name {
+    font-weight: bold;
+    flex: 1;
+}
+
+.tax-account-balance {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 0 15px;
+}
+
+.tax-account-code {
+    background-color: var(--light-color);
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-family: monospace;
+}
+
+.tax-report-summary {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+/* النوافذ المنبثقة */
+.modal-content {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.modal-header {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.modal-footer {
+    background-color: var(--light-color);
+}
+
+/* الإشعارات */
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 5px;
+    color: white;
+    z-index: 9999;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-width: 300px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    animation: slideIn 0.3s ease;
+}
+
+.toast-success {
+    background-color: var(--success-color);
+}
+
+.toast-danger {
+    background-color: var(--danger-color);
+}
+
+.toast-warning {
+    background-color: var(--warning-color);
+}
+
+.toast-info {
+    background-color: var(--info-color);
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5em;
+    cursor: pointer;
+    margin-left: 15px;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* تخصيصات Bootstrap */
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: white;
+    border-bottom: 2px solid var(--light-color);
+    padding: 15px 20px;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    font-weight: 600;
+    border-bottom: 2px solid var(--light-color);
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.btn {
+    border-radius: 5px;
+    font-weight: 500;
+}
+
+.btn-sm {
+    padding: 3px 8px;
+    font-size: 0.875em;
+}
+
+/* التجاوب */
+@media (max-width: 768px) {
+    .nav-tabs .nav-link {
+        padding: 8px 12px;
+        font-size: 0.9em;
+    }
+    
+    .entry-footer {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .entry-footer .totals {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .toast-notification {
+        left: 20px;
+        right: 20px;
+        min-width: auto;
+    }
+}
+
+@media (max-width: 576px) {
+    .header h4 {
+        font-size: 1.2em;
+    }
+    
+    .quick-actions-bar .btn {
+        margin-bottom: 5px;
+    }
+    
+    .journal-line {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .journal-line .col-md-1,
+    .journal-line .col-md-3,
+    .journal-line .col-md-5 {
+        width: 100%;
+    }
+}

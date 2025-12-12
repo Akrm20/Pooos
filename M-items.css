@@ -1,0 +1,207 @@
+/**
+ * M-items.css - أنماط واجهة إدارة الأصناف والفئات
+ */
+
+:root {
+    --items-primary: #4361ee;
+    --items-secondary: #3a0ca3;
+    --items-success: #2ec4b6;
+    --items-warning: #ff9f1c;
+    --items-danger: #e71d36;
+    --items-info: #4361ee;
+}
+
+/* تحسينات عامة */
+.main-content {
+    padding: 20px;
+    background-color: var(--bs-body-bg);
+    min-height: calc(100vh - 60px);
+}
+
+.card {
+    border: 1px solid var(--sidebar-link-hover);
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--sidebar-link-hover);
+    border-radius: 12px 12px 0 0 !important;
+    padding: 1rem 1.25rem;
+}
+
+/* بطاقات المؤشرات */
+.kpi-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.kpi-card:hover {
+    transform: translateY(-5px);
+}
+
+.kpi-card .card-body {
+    padding: 1.5rem 1rem;
+}
+
+.kpi-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+    color: white !important;
+}
+
+/* جدول الأصناف */
+.table {
+    margin-bottom: 0;
+    color: var(--bs-body-color);
+}
+
+.table thead th {
+    background-color: var(--sidebar-link-hover);
+    border-bottom: 2px solid var(--primary-color);
+    font-weight: 600;
+    padding: 12px 8px;
+}
+
+.table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: var(--sidebar-link-hover);
+}
+
+.table td {
+    padding: 12px 8px;
+    vertical-align: middle;
+    border-color: var(--sidebar-link-hover);
+}
+
+/* شارات الحالة */
+.badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+}
+
+/* أزرار الإجراءات */
+.btn-group-sm > .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* النوافذ المنبثقة */
+.modal-content {
+    background-color: var(--card-bg);
+    border: 1px solid var(--sidebar-link-hover);
+    border-radius: 12px;
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--sidebar-link-hover);
+    padding: 1rem 1.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--sidebar-link-hover);
+    padding: 1rem 1.5rem;
+}
+
+/* منتقي الإيموجي */
+.emoji-picker {
+    background-color: var(--card-bg);
+    border: 1px solid var(--sidebar-link-hover);
+}
+
+.emoji-option:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* رسالة عدم وجود بيانات */
+#noItemsMessage {
+    padding: 3rem 1rem;
+}
+
+#noItemsMessage p {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* تحسينات للوضع الداكن */
+[data-bs-theme="dark"] .table {
+    --bs-table-color: var(--bs-body-color);
+    --bs-table-bg: transparent;
+    --bs-table-border-color: var(--sidebar-link-hover);
+}
+
+[data-bs-theme="dark"] .table thead th {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-bs-theme="dark"] .table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-bs-theme="dark"] .modal-content {
+    background-color: var(--card-bg);
+}
+
+/* استعلامات الوسائط */
+@media (max-width: 768px) {
+    .main-content {
+        padding: 10px;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .kpi-card .card-body {
+        padding: 1rem;
+    }
+    
+    .kpi-value {
+        font-size: 1.5rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+    
+    .btn-group-sm > .btn {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .header h4 {
+        font-size: 1.1rem;
+    }
+    
+    .card-header h5 {
+        font-size: 1rem;
+    }
+    
+    .table td, .table th {
+        padding: 8px 4px;
+    }
+    
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+}

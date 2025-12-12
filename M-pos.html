@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نقطة البيع (POS) - Micro ERP</title>
+    
+    <!-- روابط CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <link rel="stylesheet" href="M-pos.css">
+
+</head>
+<body>
+    <!-- ========== الهيكل الأساسي ========== -->
+    <div class="header d-flex justify-content-between align-items-center px-3">
+        <div>
+            <span class="badge bg-success me-3">رصيد الصندوق: <span id="currentBalance">0.00 ر.ي</span></span>
+            <button class="btn btn-outline-secondary btn-sm" id="themeToggle">
+                <i class="bi bi-sun" id="themeIcon"></i>
+            </button>
+            <button class="btn btn-outline-primary btn-sm ms-2" onclick="location.href='index.html'">
+                <i class="bi bi-cart"></i> الرئيسية
+            </button>
+        </div>
+        <h4 class="mb-0">نقطة البيع (POS)</h4>
+    </div>
+
+    <!-- ========== المحتوى الرئيسي ========== -->
+    <div class="main-content" id="mainContent">
+        <div class="container-fluid py-4">
+            <!-- ========== نقطة البيع ========== -->
+            <div id="posModule">
+                <div class="pos-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2>🛒 نقطة البيع</h2>
+                        <span class="badge bg-success">رصيد الصندوق: <span id="posBalance">0.00 ر.ي</span></span>
+                    </div>
+
+                    <!-- شريط البحث -->
+                    <div class="mb-3 position-relative">
+                        <input type="text" class="form-control" id="productSearchInput" 
+                            placeholder="🔍 بحث فوري عن المنتج (الاسم أو الكود)...">
+                        <!-- نتائج البحث -->
+                        <div id="posSearchResults" class="search-results-container" style="display: none;"></div>
+                    </div>
+                    
+                    <!-- عرض الفئات -->
+                    <div id="categoriesView">
+                        <!-- شريط الاقتراحات السريعة -->
+                        <div class="quick-suggestions mb-4" id="quickSuggestions">
+                            <!-- سيتم تعبئته ديناميكياً -->
+                        </div>
+
+                        <!-- شبكة الفئات -->
+                        <div class="row g-3" id="categoriesGrid">
+                            <!-- سيتم تعبئتها ديناميكياً -->
+                        </div>
+                    </div>
+
+                    <!-- عرض المنتجات -->
+                    <div id="productsView" style="display: none;">
+                        <!-- رأس عرض المنتجات -->
+                        <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+                            <button class="btn btn-outline-primary btn-sm" id="backToCategoriesBtn">
+                                <i class="bi bi-arrow-right"></i> العودة للفئات
+                            </button>
+                            <h5 class="mb-0" id="currentCategoryTitle">المنتجات</h5>
+                            <div class="text-muted" id="productsCount"></div>
+                        </div>
+
+                        <!-- شبكة المنتجات -->
+                        <div class="row g-2" id="productsGrid">
+                            <!-- سيتم تعبئتها ديناميكياً -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== سلة المشتريات ========== -->
+    <div id="posCart">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">🛒 سلة المشتريات</h5>
+            <button class="btn btn-sm btn-outline-secondary" id="closeCartBtn">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="p-3" style="height: calc(100% - 120px); overflow-y: auto;">
+            <div id="cartItemsList"></div>
+            <!-- قسم الإجماليات -->
+            <div class="border-top pt-3 mt-3">
+                <div class="mb-3">
+                    <label class="form-label">اختيار العميل:</label>
+                    <select class="form-select" id="customerSelect">
+                        <option value="">عميل نقدي</option>
+                        <!-- سيتم تعبئتها ديناميكياً -->
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">طريقة الدفع:</label>
+                    <select class="form-select" id="paymentMethodSelect">
+                        <option value="cash">نقدي</option>
+                        <option value="credit">آجل</option>
+                        <option value="card">بطاقة</option>
+                    </select>
+                </div>
+
+                <!-- قسم الخصم والضريبة -->
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label class="form-label">الخصم:</label>
+                        <select class="form-select form-select-sm" id="discountType">
+                            <option value="fixed">قيمة ثابتة</option>
+                            <option value="percentage">نسبة مئوية</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">القيمة:</label>
+                        <input type="number" class="form-control form-control-sm" id="discountInput" value="0" min="0" step="0.01">
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label class="form-label">الضريبة:</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="applyTaxCheckbox" checked>
+                            <label class="form-check-label" for="applyTaxCheckbox">تطبيق الضريبة</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">النسبة:</label>
+                        <input type="number" class="form-control form-control-sm" id="taxRateInput" value="0" min="0" max="100" step="0.1" disabled>
+                    </div>
+                </div>
+                
+                <!-- تفاصيل الإجماليات -->
+                <div class="totals-breakdown mb-3">
+                    <div class="d-flex justify-content-between small border-bottom pb-1">
+                        <span>المجموع الفرعي:</span>
+                        <span id="cartSubtotal">0.00 ر.ي</span>
+                    </div>
+                    <div class="d-flex justify-content-between small text-danger border-bottom pb-1">
+                        <span>الخصم:</span>
+                        <span id="cartDiscount">0.00 ر.ي</span>
+                    </div>
+                    <div class="d-flex justify-content-between small text-info border-bottom pb-1">
+                        <span>الضريبة:</span>
+                        <span id="cartTax">0.00 ر.ي</span>
+                    </div>
+                    <div class="d-flex justify-content-between fw-bold mt-2">
+                        <span>الإجمالي النهائي:</span>
+                        <span id="cartTotal" class="text-success">0.00 ر.ي</span>
+                    </div>
+                </div>
+                
+                <button class="btn btn-success w-100 mb-2" id="saveInvoiceBtn">✅ حفظ الفاتورة</button>
+                <button class="btn btn-outline-primary w-100 mb-2" id="printInvoiceBtn">🖨️ طباعة</button>
+                <button class="btn btn-outline-success w-100" id="shareWhatsappBtn">📱 مشاركة واتساب</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- أزرار السلة العائمة -->
+    <button class="btn btn-primary fab-cart" id="fabCartBtn">
+        <i class="bi bi-cart-fill"></i>
+        <span class="cart-counter" id="cartCounter">0</span>
+    </button>
+
+    <div class="floating-cart" id="floatingCartBtn" style="display: none;">
+        <div class="floating-cart-content">
+            <span>إجمالي السلة:</span>
+            <span class="fw-bold text-success" id="floatingCartTotal">0.00 ر.ي</span>
+        </div>
+    </div>
+    
+    <!-- إشعار مؤقت -->
+    <div id="temporaryNotification" class="toast-notification" style="display: none;">
+        تم إضافة <span id="notificationProductName"></span> إلى السلة
+    </div>
+
+    <!-- ========== المكتبات JavaScript ========== -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="M-core.js"></script>
+    <script src="M-database.js"></script>
+    <script src="M-pos.js"></script>    
+    <script>
+ 
+    </script>
+</body>
+</html>
