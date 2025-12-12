@@ -1,581 +1,1645 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl" data-bs-theme="light">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Sentence Saver with Voice (Recording)</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro ERP - نظام إدارة الشركات المتكامل</title>
+    
+    <!-- روابط CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- ملف الأنماط الرئيسي -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="M.png" type="image/png">
+    <link rel="apple-touch-icon" href="M.png">
+    
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
-            color:#333; line-height:1.5; min-height:100vh; padding:15px;
+        /* أنماط خاصة بالصفحة الرئيسية */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
         }
-        .container { max-width:820px; margin:0 auto; padding-bottom:30px; }
-        header { text-align:center; padding:18px 10px; color:white; margin-bottom:18px; }
-        h1 { font-size:1.6rem; margin-bottom:6px; text-shadow:0 2px 4px rgba(0,0,0,0.2); }
-        .subtitle { font-size:0.95rem; opacity:0.95; }
-        .card { background:white; border-radius:14px; padding:16px; margin-bottom:18px; box-shadow:0 10px 30px rgba(0,0,0,0.08); }
-        h2 { font-size:1.1rem; margin-bottom:12px; color:#5a67d8; display:flex; align-items:center; gap:10px; }
-        .field { margin-bottom:12px; }
-        input[type="text"], textarea {
-            width:100%; padding:12px; border-radius:10px; border:1px solid #e2e8f0; font-size:0.98rem; font-family:inherit;
+        
+        /* ========== أنماط الشعار ========== */
+        .logo-image {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+            border-radius: 8px;
         }
-        textarea { height:90px; resize:none; }
-        .button-group { display:flex; gap:10px; flex-wrap:wrap; }
-        button {
-            padding:12px 16px; border:none; border-radius:10px; font-weight:600; cursor:pointer; display:flex; gap:8px; align-items:center;
+        
+        .logo-image:hover {
+            transform: scale(1.05);
         }
-        .primary { background:#6e8efb; color:white; }
-        .secondary { background:#edf2f7; color:#334155; }
-        .danger { background:#fc8181; color:white; }
-        .success { background:#68d391; color:white; }
-        .record-btn { background:#f6ad55; color:white; min-width:150px; justify-content:center; }
-        .small-icon-btn { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#edf2f7; border:none; cursor:pointer; }
-        .sentences-list { max-height:380px; overflow-y:auto; -webkit-overflow-scrolling:touch; margin-top:8px; }
-        .sentence-item { padding:12px; border-bottom:1px solid #e2e8f0; display:flex; gap:12px; align-items:flex-start; }
-        .sentence-main { flex:1; }
-        .sentence-text { font-size:1rem; margin-bottom:6px; }
-        .translation-text { color:#4a5568; font-size:0.95rem; margin-bottom:6px; }
-        .meta { font-size:0.82rem; color:#94a3b8; display:flex; gap:8px; align-items:center; }
-        .actions { display:flex; gap:8px; align-items:center; }
-        .empty-state { text-align:center; padding:30px 12px; color:#a0aec0; }
-        .stats { display:flex; justify-content:space-between; padding:12px; background:#f7fafc; border-radius:10px; margin-top:14px; font-size:0.9rem; }
-        .stat-value { font-size:1.2rem; font-weight:700; color:#6e8efb; }
-        .notification { position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(100px); background:#48bb78; color:white; padding:12px 20px; border-radius:10px; opacity:0; z-index:1200; transition:transform .28s, opacity .28s; max-width:90%; text-align:center; }
-        .notification.show { transform:translateX(-50%) translateY(0); opacity:1; }
-        @media (max-width:480px) {
-            .button-group { flex-direction:column; }
-            button { width:100%; }
-            .record-btn { min-width:auto; }
+        
+        .hero-logo {
+            max-width: 150px;
+            height: auto;
+            opacity: 0.9;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+            animation: float 3s ease-in-out infinite;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        
+        .card-logo-icon {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+            vertical-align: middle;
+            opacity: 0.7;
+            border-radius: 3px;
+        }
+        
+        .footer-logo {
+            height: 30px;
+            width: auto;
+            opacity: 0.9;
+            border-radius: 6px;
+        }
+        
+        /* ========== أقسام الصفحة ========== */
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1a2530 100%);
+            color: white;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.05)"/></svg>');
+            background-size: cover;
+        }
+        
+        .module-card {
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            height: 100%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            cursor: pointer;
+        }
+        
+        .module-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        
+        .module-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1rem;
+        }
+        
+        .stats-card {
+            border-radius: 12px;
+            overflow: hidden;
+            border: none;
+        }
+        
+        .quick-actions {
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .quick-action-btn {
+            border-radius: 10px;
+            padding: 0.8rem 1.2rem;
+            font-weight: 500;
+        }
+        
+        .footer {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 30px 30px 0 0;
+            margin-top: 3rem;
+        }
+        
+        .system-status {
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+        }
+        
+        .status-online {
+            background-color: rgba(39, 174, 96, 0.2);
+            color: var(--success-color);
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+        
+        .status-offline {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: var(--accent-color);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+        
+        .welcome-message {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .last-backup {
+            font-size: 0.85rem;
+            background-color: rgba(255,255,255,0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        /* ========== أنماط بطاقات التخزين ========== */
+        .storage-card {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .storage-progress {
+            height: 10px;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.2);
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .storage-progress-bar {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        
+        .storage-warning {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        }
+        
+        .storage-safe {
+            background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+        }
+        
+        .storage-moderate {
+            background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+        }
+        
+        .storage-details {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        /* ========== أنماط بطاقات الوحدات ========== */
+        .pos-card .module-icon { background-color: rgba(52, 152, 219, 0.1); color: var(--secondary-color); }
+        .inventory-card .module-icon { background-color: rgba(46, 204, 113, 0.1); color: var(--success-color); }
+        .purchase-card .module-icon { background-color: rgba(155, 89, 182, 0.1); color: #9b59b6; }
+        .accounting-card .module-icon { background-color: rgba(241, 196, 15, 0.1); color: #f1c40f; }
+        .settings-card .module-icon { background-color: rgba(149, 165, 166, 0.1); color: #95a5a6; }
+        
+        .pos-card:hover { border-left: 5px solid var(--secondary-color); }
+        .inventory-card:hover { border-left: 5px solid var(--success-color); }
+        .purchase-card:hover { border-left: 5px solid #9b59b6; }
+        .accounting-card:hover { border-left: 5px solid #f1c40f; }
+        .settings-card:hover { border-left: 5px solid #95a5a6; }
+        
+        /* ========== أنماط القسم المساعدة ========== */
+        .help-alert {
+            border-left: 5px solid #f39c12;
+            background-color: #fff9e6;
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+        
+        .warning-list {
+            padding-right: 1.5rem;
+        }
+        
+        .warning-list li {
+            margin-bottom: 0.5rem;
+            padding-right: 0.5rem;
+        }
+        
+        /* ========== تحسينات للوضع الداكن ========== */
+        [data-bs-theme="dark"] .hero-logo {
+            filter: brightness(0.9) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        [data-bs-theme="dark"] .logo-image,
+        [data-bs-theme="dark"] .footer-logo {
+            filter: brightness(1.1);
+        }
+        
+        [data-bs-theme="dark"] .quick-actions {
+            background-color: #2c3e50;
+        }
+        
+        [data-bs-theme="dark"] .help-alert {
+            background-color: #3d2c1f;
+            border-left-color: #f39c12;
+        }
+        
+        /* ========== تصميم متجاوب ========== */
+        @media (max-width: 768px) {
+            .hero-section {
+                border-radius: 0 0 20px 20px;
+                padding: 2rem 1rem !important;
+            }
+            
+            .module-card {
+                margin-bottom: 1rem;
+            }
+            
+            .quick-actions {
+                padding: 1rem;
+            }
+            
+            .footer {
+                border-radius: 20px 20px 0 0;
+            }
+            
+            .logo-image {
+                height: 35px;
+            }
+            
+            .hero-logo {
+                max-width: 120px;
+                padding: 10px;
+            }
+            
+            .footer-logo {
+                height: 25px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .logo-image {
+                height: 30px;
+            }
+            
+            .hero-logo {
+                max-width: 100px;
+                padding: 8px;
+            }
+            
+            .card-logo-icon {
+                width: 14px;
+                height: 14px;
+            }
+        }
+        
+        /* ========== تأثيرات إضافية ========== */
+        .logo-image:active {
+            transform: scale(0.95);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-microphone"></i> Sentence Saver - Recording</h1>
-            <p class="subtitle">سجّل صوتك مباشرة من المايك، واحفظ الجملة مع الترجمة</p>
-        </header>
-
-        <main>
-            <div class="card">
-                <h2><i class="fas fa-edit"></i> Add / تسجيل جملة</h2>
-
-                <div class="field">
-                    <label for="sentenceInput"><strong>Sentence (English)</strong></label>
-                    <textarea id="sentenceInput" placeholder="Type or paste the English sentence here..."></textarea>
-                </div>
-
-                <div class="field">
-                    <label for="translationInput"><strong>Translation (الترجمة)</strong></label>
-                    <input id="translationInput" type="text" placeholder="اكتب الترجمة العربية هنا..." />
-                </div>
-
-                <div class="field" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                    <button id="recordToggleBtn" class="record-btn">
-                        <i class="fas fa-microphone"></i> Start Recording
-                    </button>
-
-                    <div id="recordStatus" style="font-size:0.95rem; color:#334155;"></div>
-
-                    <audio id="previewAudio" controls style="display:none; width:100%; margin-top:8px;"></audio>
-                </div>
-
-                <div class="button-group" style="margin-top:12px;">
-                    <button id="saveBtn" class="primary"><i class="fas fa-save"></i> Save (حفظ)</button>
-                    <button id="clearInputBtn" class="secondary"><i class="fas fa-eraser"></i> Clear Input</button>
-                </div>
+    <!-- ========== الهيكل الأساسي ========== -->
+    <div class="header d-flex justify-content-between align-items-center px-3 px-md-4 py-3">
+        <div class="d-flex align-items-center">
+            <!-- شعار النظام -->
+            <img src="M.png" alt="شعار Micro ERP" class="logo-image me-3" id="mainLogo">
+            <div class="me-3 d-none d-md-block">
+                <h3 class="mb-0 fw-bold text-primary">Micro ERP</h3>
+                <small class="text-muted">نظام إدارة الشركات المتكامل</small>
             </div>
-
-            <div class="card">
-                <h2><i class="fas fa-list"></i> Saved Sentences <span id="countBadge" style="background:#6e8efb;color:white;font-size:0.85rem;padding:3px 10px;border-radius:20px;margin-left:8px;">0</span></h2>
-
-                <div class="sentences-list" id="sentencesList">
-                    <div class="empty-state" id="emptyState">
-                        <i class="fas fa-inbox" style="font-size:2.6rem;opacity:.6;"></i>
-                        <p>No sentences saved yet. Paste a sentence and record audio to save it.</p>
-                    </div>
-                </div>
-
-                <div class="button-group" style="margin-top:16px;">
-                    <button id="exportBtn" class="success"><i class="fas fa-file-export"></i> Export Text (Export .txt)</button>
-                    <button id="clearAllBtn" class="danger"><i class="fas fa-trash-alt"></i> Clear All</button>
-                </div>
-
-                <div class="stats">
-                    <div>
-                        <div class="stat-value" id="totalCount">0</div>
-                        <div class="stat-label">Total</div>
-                    </div>
-                    <div>
-                        <div class="stat-value" id="charCount">0</div>
-                        <div class="stat-label">Characters</div>
-                    </div>
-                    <div>
-                        <div class="stat-value" id="wordCount">0</div>
-                        <div class="stat-label">Words</div>
-                    </div>
-                </div>
+            <div class="d-block d-md-none">
+                <h4 class="mb-0 fw-bold text-primary">Micro ERP</h4>
             </div>
-        </main>
-
-        <div class="notification" id="notification"><span id="notificationText"></span></div>
+        </div>
+        
+        <div class="d-flex align-items-center">
+            <div class="me-3 d-none d-md-block">
+                <span class="system-status status-online" id="systemStatus">
+                    <i class="bi bi-check-circle-fill me-1"></i> النظام نشط
+                </span>
+            </div>
+            <div class="me-3">
+                <span class="welcome-message" id="welcomeMessage">مرحباً بك!</span>
+            </div>
+            <button class="btn btn-outline-secondary btn-sm" id="themeToggle">
+                <i class="bi bi-sun" id="themeIcon"></i>
+            </button>
+        </div>
     </div>
 
+    <!-- ========== قسم البطل (Hero) ========== -->
+    <div class="hero-section py-5 px-3 px-md-5">
+        <div class="container-fluid position-relative">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-5 fw-bold mb-3">مرحباً بك في نظام Micro ERP</h1>
+                    <p class="lead mb-4">
+                        نظام متكامل لإدارة عملك بكل سهولة وكفاءة. ادارة المبيعات، المخزون، المشتريات والمحاسبة من مكان واحد.
+                    </p>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <span class="badge bg-light text-dark me-2 mb-2 p-2">
+                            <i class="bi bi-check-circle-fill text-success me-1"></i> قاعدة بيانات محلية
+                        </span>
+                        <span class="badge bg-light text-dark me-2 mb-2 p-2">
+                            <i class="bi bi-check-circle-fill text-success me-1"></i> لا حاجة للإنترنت
+                        </span>
+                        <span class="badge bg-light text-dark mb-2 p-2">
+                            <i class="bi bi-check-circle-fill text-success me-1"></i> واجهة عربية
+                        </span>
+                    </div>
+                    <div class="last-backup mt-2">
+                        <i class="bi bi-clock-history me-1"></i> آخر نسخة احتياطية: <span id="lastBackupTime">لم يتم بعد</span>
+                    </div>
+                </div>
+                <div class="col-md-4 d-none d-md-block text-center">
+                    <div class="p-4">
+                        <img src="M.png" alt="شعار Micro ERP" class="hero-logo">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== المحتوى الرئيسي ========== -->
+    <div class="main-content" id="mainContent">
+        <div class="container-fluid py-3 px-3 px-md-4">
+            <!-- ========== الإحصائيات السريعة ========== -->
+            <div class="row mb-4">
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="card stats-card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-subtitle mb-2 opacity-75">إجمالي المبيعات</h6>
+                                    <h3 class="card-title mb-0" id="totalSales">0 ر.ي</h3>
+                                </div>
+                                <div class="fs-1">
+                                    <i class="bi bi-cash-stack"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="card stats-card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-subtitle mb-2 opacity-75">قيمة المخزون</h6>
+                                    <h3 class="card-title mb-0" id="inventoryValue">0 ر.ي</h3>
+                                </div>
+                                <div class="fs-1">
+                                    <i class="bi bi-box-seam"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="card stats-card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-subtitle mb-2 opacity-75">المصاريف</h6>
+                                    <h3 class="card-title mb-0" id="totalExpenses">0 ر.ي</h3>
+                                </div>
+                                <div class="fs-1">
+                                    <i class="bi bi-arrow-up-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="card stats-card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-subtitle mb-2 opacity-75">رصيد الصندوق</h6>
+                                    <h3 class="card-title mb-0" id="cashBalance">0 ر.ي</h3>
+                                </div>
+                                <div class="fs-1">
+                                    <i class="bi bi-wallet2"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== الإجراءات السريعة ========== -->
+            <div class="quick-actions mb-4">
+                <h5 class="mb-3"><i class="bi bi-lightning-charge-fill text-warning me-2"></i> إجراءات سريعة</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-primary quick-action-btn" onclick="location.href='M-pos.html'">
+                        <i class="bi bi-cart-plus me-1"></i> بدء عملية بيع
+                    </button>
+                    <button class="btn btn-success quick-action-btn" onclick="location.href='M-items.html'">
+                        <i class="bi bi-plus-circle me-1"></i> إضافة منتج جديد
+                    </button>
+                    <button class="btn btn-info quick-action-btn" onclick="location.href='M-purchases.html'">
+                        <i class="bi bi-truck me-1"></i> تسجيل فاتورة شراء
+                    </button>
+                    <button class="btn btn-warning quick-action-btn" onclick="location.href='M-accounting.html'">
+                        <i class="bi bi-journal-text me-1"></i> تسجيل قيد محاسبي
+                    </button>
+                    <button class="btn btn-secondary quick-action-btn" onclick="location.href='M-setting.html'">
+                        <i class="bi bi-gear me-1"></i> إعدادات النظام
+                    </button>
+                </div>
+            </div>
+
+            <!-- ========== قسم مراقبة التخزين ========== -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="card storage-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="card-title mb-0 text-white">
+                                    <i class="bi bi-hdd me-2"></i> مراقبة مساحة التخزين
+                                </h5>
+                                <span class="badge bg-light text-dark" id="storageStatus">جيد</span>
+                            </div>
+                            
+                            <div class="storage-details mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>المساحة المستخدمة:</span>
+                                    <span class="fw-bold" id="usedStorage">0 MB</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>المساحة المتبقية:</span>
+                                    <span class="fw-bold" id="freeStorage">0 MB</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>إجمالي السعة:</span>
+                                    <span class="fw-bold" id="totalStorage">0 MB</span>
+                                </div>
+                            </div>
+                            
+                            <div class="storage-progress">
+                                <div class="storage-progress-bar storage-safe" id="storageProgressBar" style="width: 10%"></div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <small class="storage-details" id="storagePercentage">0% مستخدم</small>
+                                <small class="storage-details">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    <span id="storageMessage">مساحة التخزين في وضع جيد</span>
+                                </small>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <button class="btn btn-light btn-sm me-2" id="refreshStorageBtn">
+                                    <i class="bi bi-arrow-clockwise me-1"></i> تحديث
+                                </button>
+                                <button class="btn btn-outline-light btn-sm" id="backupNowBtn">
+                                    <i class="bi bi-download me-1"></i> نسخ احتياطي الآن
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">
+                                <i class="bi bi-shield-check text-success me-2"></i> نصائح الحماية
+                            </h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-3">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <span>احفظ نسخة احتياطية أسبوعياً</span>
+                                </li>
+                                <li class="mb-3">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <span>لا تحذف بيانات المتصفح</span>
+                                </li>
+                                <li class="mb-3">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <span>استخدم متصفحاً ثابتاً</span>
+                                </li>
+                                <li>
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <span>راقب مساحة التخزين بانتظام</span>
+                                </li>
+                            </ul>
+                            <div class="mt-4">
+                                <small class="text-muted">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                    البيانات مخزنة محلياً في المتصفح
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== تنبيهات مهمة للمستخدم ========== -->
+            <div class="help-alert mb-4">
+                <h5 class="text-warning mb-3">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> تنبيهات مهمة للحفاظ على بياناتك
+                </h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="warning-list">
+                            <li><strong>استخدم متصفحاً واحداً:</strong> لا تنتقل بين المتصفحات لنفس البيانات</li>
+                            <li><strong>لا تمسح بيانات المتصفح:</strong> سيؤدي ذلك إلى حذف جميع بيانات النظام</li>
+                            <li><strong>تجنب تحديث المتصفح:</strong> قد تؤثر التحديثات على تخزين البيانات</li>
+                            <li><strong>أغلق النوافذ الخاصة:</strong> قد لا تحفظ البيانات بشكل دائم</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="warning-list">
+                            <li><strong>احفظ نسخاً احتياطية:</strong> قم بالنسخ الاحتياطي أسبوعياً على الأقل</li>
+                            <li><strong>تجنب وضع التصفح الخاص:</strong> قد لا يحفظ البيانات بشكل دائم</li>
+                            <li><strong>لا تستخدم أدوات تنظيف:</strong> قد تحذف بيانات IndexedDB</li>
+                            <li><strong>افحص التخزين بانتظام:</strong> تأكد من وجود مساحة كافية</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-warning btn-sm" id="showMoreTipsBtn">
+                        <i class="bi bi-info-circle me-1"></i> المزيد من النصائح
+                    </button>
+                </div>
+            </div>
+
+            <!-- ========== وحدات النظام ========== -->
+            <h4 class="mb-4"><i class="bi bi-grid-3x3-gap-fill text-primary me-2"></i> وحدات النظام</h4>
+            <div class="row g-4">
+                <!-- وحدة نقطة البيع -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card module-card pos-card h-100" onclick="location.href='M-pos.html'">
+                        <div class="card-body text-center p-4">
+                            <div class="module-icon">
+                                <i class="bi bi-cart-check"></i>
+                            </div>
+                            <h5 class="card-title mb-3">نقطة البيع (POS)</h5>
+                            <p class="card-text text-muted mb-4">
+                                إدارة عمليات البيع والشراء، طباعة الفواتير، وإدارة العملاء بكل سهولة.
+                            </p>
+                            <div class="mt-auto">
+                                <span class="badge bg-primary rounded-pill px-3 py-2">
+                                    <i class="bi bi-arrow-right-circle me-1"></i> الانتقال
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0 text-center py-3">
+                            <small class="text-muted">
+                                <img src="M.png" alt="شعار" class="card-logo-icon me-1">
+                                <span id="posLastActivity">لم يتم استخدامها بعد</span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- وحدة المخزون والأصناف -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card module-card inventory-card h-100" onclick="location.href='M-items.html'">
+                        <div class="card-body text-center p-4">
+                            <div class="module-icon">
+                                <i class="bi bi-boxes"></i>
+                            </div>
+                            <h5 class="card-title mb-3">المخزون والأصناف</h5>
+                            <p class="card-text text-muted mb-4">
+                                إدارة المنتجات، الفئات، والمخزون. متابعة الأصناف المنخفضة والنافذة.
+                            </p>
+                            <div class="mt-auto">
+                                <span class="badge bg-success rounded-pill px-3 py-2">
+                                    <i class="bi bi-arrow-right-circle me-1"></i> الانتقال
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0 text-center py-3">
+                            <small class="text-muted">
+                                <img src="M.png" alt="شعار" class="card-logo-icon me-1">
+                                <span id="totalItemsCount">0</span> منتج
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- وحدة المشتريات -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card module-card purchase-card h-100" onclick="location.href='M-purchases.html'">
+                        <div class="card-body text-center p-4">
+                            <div class="module-icon">
+                                <i class="bi bi-cart-plus"></i>
+                            </div>
+                            <h5 class="card-title mb-3">المشتريات والموردين</h5>
+                            <p class="card-text text-muted mb-4">
+                                إدارة مشترياتك من الموردين، تسجيل فواتير الشراء، ومتابعة الذمم.
+                            </p>
+                            <div class="mt-auto">
+                                <span class="badge rounded-pill px-3 py-2" style="background-color: #9b59b6; color: white;">
+                                    <i class="bi bi-arrow-right-circle me-1"></i> الانتقال
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0 text-center py-3">
+                            <small class="text-muted">
+                                <img src="M.png" alt="شعار" class="card-logo-icon me-1">
+                                <span id="suppliersCount">0</span> مورد
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- وحدة المحاسبة -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card module-card accounting-card h-100" onclick="location.href='M-accounting.html'">
+                        <div class="card-body text-center p-4">
+                            <div class="module-icon">
+                                <i class="bi bi-calculator"></i>
+                            </div>
+                            <h5 class="card-title mb-3">المحاسبة المالية</h5>
+                            <p class="card-text text-muted mb-4">
+                                إدارة الحسابات، تسجيل القيود اليومية، ومراجعة التقارير المالية.
+                            </p>
+                            <div class="mt-auto">
+                                <span class="badge rounded-pill px-3 py-2" style="background-color: #f1c40f; color: #333;">
+                                    <i class="bi bi-arrow-right-circle me-1"></i> الانتقال
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0 text-center py-3">
+                            <small class="text-muted">
+                                <img src="M.png" alt="شعار" class="card-logo-icon me-1">
+                                <span id="transactionsCount">0</span> معاملة
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- وحدة الإعدادات -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card module-card settings-card h-100" onclick="location.href='M-setting.html'">
+                        <div class="card-body text-center p-4">
+                            <div class="module-icon">
+                                <i class="bi bi-gear"></i>
+                            </div>
+                            <h5 class="card-title mb-3">إعدادات النظام</h5>
+                            <p class="card-text text-muted mb-4">
+                                إدارة إعدادات النظام، المستخدمين، النسخ الاحتياطي، ومعلومات الشركة.
+                            </p>
+                            <div class="mt-auto">
+                                <span class="badge bg-secondary rounded-pill px-3 py-2">
+                                    <i class="bi bi-arrow-right-circle me-1"></i> الانتقال
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0 text-center py-3">
+                            <small class="text-muted">
+                                <img src="M.png" alt="شعار" class="card-logo-icon me-1">
+                                قاعدة البيانات نشطة
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- بطاقة إضافية للمساعدة -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card module-card h-100" style="border-left: 5px solid #e74c3c;">
+                        <div class="card-body text-center p-4">
+                            <div class="module-icon" style="background-color: rgba(231, 76, 60, 0.1); color: #e74c3c;">
+                                <i class="bi bi-question-circle"></i>
+                            </div>
+                            <h5 class="card-title mb-3">المساعدة والدعم</h5>
+                            <p class="card-text text-muted mb-4">
+                                تعرف على كيفية استخدام النظام، حل المشكلات الشائعة، والدعم الفني.
+                            </p>
+                            <div class="mt-auto">
+                                <button class="btn btn-outline-danger rounded-pill px-4" id="helpBtn">
+                                    <i class="bi bi-question-circle me-1"></i> مساعدة
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0 text-center py-3">
+                            <small class="text-muted">
+                                <img src="M.png" alt="شعار" class="card-logo-icon me-1">
+                                الإصدار 2.0
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== نشاطات حديثة ========== -->
+            <div class="row mt-5">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-clock-history text-primary me-2"></i> آخر النشاطات</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="recentActivitiesTable">
+                                    <thead>
+                                        <tr>
+                                            <th width="50">#</th>
+                                            <th>النشاط</th>
+                                            <th width="120">التاريخ</th>
+                                            <th width="100">الحالة</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recentActivitiesBody">
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted py-4">
+                                                <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                                جاري تحميل النشاطات...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-exclamation-triangle text-warning me-2"></i> تنبيهات مهمة</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="alertsContainer">
+                                <!-- سيتم تعبئتها ديناميكياً -->
+                            </div>
+                            <div class="text-center mt-3">
+                                <button class="btn btn-sm btn-outline-primary" id="refreshAlertsBtn">
+                                    <i class="bi bi-arrow-clockwise"></i> تحديث التنبيهات
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== التذييل ========== -->
+    <div class="footer py-4 px-3 px-md-4 mt-5">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="M.png" alt="شعار Micro ERP" class="footer-logo me-2">
+                        <h5 class="text-white mb-0">Micro ERP</h5>
+                    </div>
+                    <p class="text-light opacity-75 small">
+                        نظام إدارة الشركات المتكامل المصمم خصيصاً للشركات الصغيرة والمتوسطة. يعمل بشكل كامل في المتصفح دون حاجة للإنترنت.
+                    </p>
+                </div>
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <h6 class="text-white mb-3">الوحدات</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="M-pos.html" class="text-light opacity-75 text-decoration-none">نقطة البيع (POS)</a></li>
+                        <li class="mb-2"><a href="M-items.html" class="text-light opacity-75 text-decoration-none">المخزون والأصناف</a></li>
+                        <li class="mb-2"><a href="M-purchases.html" class="text-light opacity-75 text-decoration-none">المشتريات والموردين</a></li>
+                        <li class="mb-2"><a href="M-accounting.html" class="text-light opacity-75 text-decoration-none">المحاسبة المالية</a></li>
+                        <li><a href="M-setting.html" class="text-light opacity-75 text-decoration-none">إعدادات النظام</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="text-white mb-3">معلومات النظام</h6>
+                    <ul class="list-unstyled text-light opacity-75 small">
+                        <li class="mb-2"><i class="bi bi-database me-2"></i> <span id="dbInfo">قاعدة البيانات: جاهزة</span></li>
+                        <li class="mb-2"><i class="bi bi-clock me-2"></i> <span id="currentTime">--:--:--</span></li>
+                        <li class="mb-2"><i class="bi bi-calendar me-2"></i> <span id="currentDate">--/--/----</span></li>
+                        <li><i class="bi bi-cpu me-2"></i> الإصدار 2.0</li>
+                    </ul>
+                    <div class="mt-3">
+                        <button class="btn btn-sm btn-light" onclick="location.href='M-setting.html#backup-settings'">
+                            <i class="bi bi-download me-1"></i> نسخ احتياطي
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <hr class="bg-light opacity-25 my-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="text-light opacity-75 small mb-0">
+                        &copy; 2025 Micro ERP. جميع الحقوق محفوظة.
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-light opacity-75 small mb-0">
+                        تم التطوير باستخدام HTML5، CSS3، JavaScript و IndexedDB
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== مكتبات JavaScript ========== -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- ملفات النظام -->
+    <script src="M-core.js"></script>
+    <script src="M-database.js"></script>
+    
+    <!-- JavaScript الخاص بالصفحة الرئيسية -->
     <script>
-    /*******************************
-     * Sentence Saver with Voice
-     * - Stores sentence, translation, audio Blob, and date in IndexedDB
-     * - Recording uses MediaRecorder (mobile compatible browsers)
-     * - Single toggle record button: Start Recording -> Stop Recording -> Play (preview)
-     *******************************/
-
-    // Database config
-    const DB_NAME = 'SentenceSaverDB';
-    const STORE_NAME = 'sentences';
-    const DB_VERSION = 2; // bumped version to add audio/translation
-
-    let db;
-    let sentences = [];
-
-    // Recording state
-    let mediaRecorder = null;
-    let recordedChunks = [];
-    let currentAudioBlob = null; // Blob of last recording (not yet saved)
-    let isRecording = false;
-    let isPlaybackMode = false;
-
-    // DOM
-    const sentenceInput = document.getElementById('sentenceInput');
-    const translationInput = document.getElementById('translationInput');
-    const recordToggleBtn = document.getElementById('recordToggleBtn');
-    const recordStatus = document.getElementById('recordStatus');
-    const previewAudio = document.getElementById('previewAudio');
-    const saveBtn = document.getElementById('saveBtn');
-    const clearInputBtn = document.getElementById('clearInputBtn');
-    const exportBtn = document.getElementById('exportBtn');
-    const clearAllBtn = document.getElementById('clearAllBtn');
-    const sentencesList = document.getElementById('sentencesList');
-    const emptyState = document.getElementById('emptyState');
-    const notification = document.getElementById('notification');
-    const notificationText = document.getElementById('notificationText');
-    const countBadge = document.getElementById('countBadge');
-    const totalCountElement = document.getElementById('totalCount');
-    const charCountElement = document.getElementById('charCount');
-    const wordCountElement = document.getElementById('wordCount');
-
-    document.addEventListener('DOMContentLoaded', () => {
-        initDB();
-        setupEventListeners();
-        // sample placeholder
-        setTimeout(() => {
-            if (!sentenceInput.value) {
-                sentenceInput.value = "This is a sample sentence. Type your sentence here.";
-                translationInput.value = "هذه جملة تجريبية.";
-            }
-        }, 400);
-    });
-
-    function setupEventListeners() {
-        recordToggleBtn.addEventListener('click', handleRecordToggle);
-        saveBtn.addEventListener('click', saveSentenceWithAudio);
-        clearInputBtn.addEventListener('click', clearInputFields);
-        exportBtn.addEventListener('click', exportToFile);
-        clearAllBtn.addEventListener('click', clearAllSentences);
-
-        sentenceInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                saveSentenceWithAudio();
-            }
-        });
-    }
-
-    // Initialize IndexedDB
-    function initDB() {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-        request.onerror = (event) => {
-            console.error('DB error', event.target.error);
-            showNotification('Failed to initialize database', 'error');
-        };
-
-        request.onupgradeneeded = (event) => {
-            db = event.target.result;
-            if (!db.objectStoreNames.contains(STORE_NAME)) {
-                const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-                store.createIndex('date', 'date', { unique: false });
-            } else {
-                // object store exists; if migrating, it's fine — we'll add properties dynamically per record
-            }
-        };
-
-        request.onsuccess = (event) => {
-            db = event.target.result;
-            loadSentences();
-        };
-    }
-
-    // Load all sentences
-    function loadSentences() {
-        const transaction = db.transaction([STORE_NAME], 'readonly');
-        const store = transaction.objectStore(STORE_NAME);
-        const index = store.index('date');
-        const request = index.getAll();
-
-        request.onsuccess = (event) => {
-            sentences = event.target.result || [];
-            renderSentences();
-            updateStats();
-        };
-
-        request.onerror = (event) => {
-            console.error('Error loading sentences', event.target.error);
-            showNotification('Failed to load saved sentences', 'error');
-        };
-    }
-
-    // Handle record toggle button (Start -> Stop -> Play preview)
-    async function handleRecordToggle() {
-        if (!isRecording && !isPlaybackMode) {
-            // Start recording
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                showNotification('Microphone not supported in this browser', 'error');
-                return;
-            }
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                recordedChunks = [];
-                mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.ondataavailable = (e) => {
-                    if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+        class MicroERPIndex {
+            constructor() {
+                this.db = new MDatabase();
+                this.isDarkTheme = false;
+                this.systemData = {
+                    totalItems: 0,
+                    totalCategories: 0,
+                    totalCustomers: 0,
+                    totalSuppliers: 0,
+                    totalInvoices: 0,
+                    totalTransactions: 0,
+                    cashBalance: 0,
+                    inventoryValue: 0,
+                    totalSales: 0,
+                    totalExpenses: 0
                 };
-                mediaRecorder.onstop = () => {
-                    currentAudioBlob = new Blob(recordedChunks, { type: 'audio/webm' });
-                    preparePreview(currentAudioBlob);
-                    // Stop all tracks to release mic
-                    stream.getTracks().forEach(t => t.stop());
+                this.storageInfo = {
+                    used: 0,
+                    free: 0,
+                    total: 0,
+                    percentage: 0
                 };
-                mediaRecorder.start();
-                isRecording = true;
-                updateRecordButton();
-                recordStatus.textContent = 'Recording...';
-            } catch (err) {
-                console.error('getUserMedia error', err);
-                showNotification('Could not access microphone. Allow microphone permission.', 'error');
             }
-        } else if (isRecording) {
-            // Stop recording
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-            }
-            isRecording = false;
-            isPlaybackMode = true;
-            updateRecordButton();
-            recordStatus.textContent = 'Recording stopped — preview available';
-        } else if (!isRecording && isPlaybackMode) {
-            // Play preview (toggle play/pause on previewAudio)
-            if (previewAudio.src) {
-                if (previewAudio.paused) {
-                    previewAudio.play();
-                } else {
-                    previewAudio.pause();
+            
+            async init() {
+                try {
+                    // فتح قاعدة البيانات
+                    await this.db.openDB();
+                    
+                    // تهيئة الثيم
+                    this.initTheme();
+                    
+                    // تحميل البيانات
+                    await this.loadSystemData();
+                    
+                    // تحديث الواجهة
+                    this.updateUI();
+                    
+                    // إعداد تحديث الوقت
+                    this.setupClock();
+                    
+                    // إعداد مستمعي الأحداث
+                    this.setupEventListeners();
+                    
+                    // تحميل النشاطات الحديثة
+                    await this.loadRecentActivities();
+                    
+                    // تحميل التنبيهات
+                    await this.loadAlerts();
+                    
+                    // تحميل معلومات التخزين
+                    await this.loadStorageInfo();
+                    
+                    console.log('تم تهيئة الصفحة الرئيسية بنجاح');
+                } catch (error) {
+                    console.error('خطأ في تهيئة الصفحة الرئيسية:', error);
                 }
             }
-        }
-    }
-
-    function updateRecordButton() {
-        if (isRecording) {
-            recordToggleBtn.innerHTML = '<i class="fas fa-stop"></i> Stop Recording';
-            recordToggleBtn.style.background = '#f56565';
-        } else if (isPlaybackMode) {
-            recordToggleBtn.innerHTML = '<i class="fas fa-play"></i> Play Preview';
-            recordToggleBtn.style.background = '#48bb78';
-        } else {
-            recordToggleBtn.innerHTML = '<i class="fas fa-microphone"></i> Start Recording';
-            recordToggleBtn.style.background = '';
-        }
-    }
-
-    function preparePreview(blob) {
-        if (!blob) return;
-        const url = URL.createObjectURL(blob);
-        previewAudio.src = url;
-        previewAudio.style.display = 'block';
-        previewAudio.controls = true;
-    }
-
-    function clearPreview() {
-        previewAudio.pause();
-        previewAudio.src = '';
-        previewAudio.style.display = 'none';
-        if (previewAudio.src) URL.revokeObjectURL(previewAudio.src);
-        currentAudioBlob = null;
-        isPlaybackMode = false;
-        updateRecordButton();
-        recordStatus.textContent = '';
-    }
-
-    // Save sentence + translation + audio blob into IndexedDB
-    function saveSentenceWithAudio() {
-        const text = sentenceInput.value.trim();
-        const translation = translationInput.value.trim();
-
-        if (!text) {
-            showNotification('Please enter a sentence before saving', 'warning');
-            sentenceInput.focus();
-            return;
-        }
-
-        // Build object
-        const obj = {
-            text,
-            translation: translation || '',
-            date: new Date().toISOString(),
-            audio: currentAudioBlob || null // may be null if user didn't record
-        };
-
-        const transaction = db.transaction([STORE_NAME], 'readwrite');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.add(obj);
-
-        request.onsuccess = () => {
-            showNotification('Saved sentence successfully', 'success');
-            clearInputFields();
-            loadSentences();
-            clearPreview();
-        };
-
-        request.onerror = (e) => {
-            console.error('Save error', e);
-            showNotification('Failed to save sentence', 'error');
-        };
-    }
-
-    function clearInputFields() {
-        sentenceInput.value = '';
-        translationInput.value = '';
-        clearPreview();
-        sentenceInput.focus();
-        showNotification('Input cleared', 'info');
-    }
-
-    // Delete one sentence by id
-    function deleteSentence(id) {
-        if (!confirm('Are you sure you want to delete this sentence?')) return;
-        const tx = db.transaction([STORE_NAME], 'readwrite');
-        const store = tx.objectStore(STORE_NAME);
-        const req = store.delete(id);
-        req.onsuccess = () => {
-            showNotification('Deleted', 'success');
-            loadSentences();
-        };
-        req.onerror = (e) => {
-            console.error('Delete error', e);
-            showNotification('Failed to delete', 'error');
-        };
-    }
-
-    // Copy to clipboard
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            showNotification('Copied to clipboard', 'success');
-        }).catch(err => {
-            console.error('Copy failed', err);
-            showNotification('Failed to copy', 'error');
-        });
-    }
-
-    // Export sentences to text file (includes translations)
-    function exportToFile() {
-        if (sentences.length === 0) {
-            showNotification('No sentences to export', 'warning');
-            return;
-        }
-        let exportText = `=== Exported Sentences (${sentences.length}) ===\n\n`;
-        sentences.forEach((s, i) => {
-            const dateStr = new Date(s.date).toLocaleString();
-            exportText += `${i+1}. ${s.text}\n   Translation: ${s.translation || '-'}\n   Saved: ${dateStr}\n\n`;
-        });
-        exportText += `Exported on: ${new Date().toLocaleString()}\nTotal: ${sentences.length}\n`;
-        const blob = new Blob([exportText], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `sentences_${new Date().toISOString().slice(0,10)}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        showNotification('Exported to .txt file', 'success');
-    }
-
-    // Clear all sentences
-    function clearAllSentences() {
-        if (sentences.length === 0) {
-            showNotification('No sentences to clear', 'info');
-            return;
-        }
-        if (!confirm(`Are you sure you want to delete all ${sentences.length} sentences?`)) return;
-        const tx = db.transaction([STORE_NAME], 'readwrite');
-        const store = tx.objectStore(STORE_NAME);
-        const req = store.clear();
-        req.onsuccess = () => {
-            showNotification('All sentences cleared', 'success');
-            loadSentences();
-        };
-        req.onerror = (e) => {
-            console.error('Clear all error', e);
-            showNotification('Failed to clear all', 'error');
-        };
-    }
-
-    // Render sentences list
-    function renderSentences() {
-        sentencesList.innerHTML = '';
-        if (!sentences || sentences.length === 0) {
-            sentencesList.appendChild(emptyState);
-            emptyState.style.display = 'block';
-            countBadge.textContent = '0';
-            totalCountElement.textContent = '0';
-            charCountElement.textContent = '0';
-            wordCountElement.textContent = '0';
-            return;
-        }
-        emptyState.style.display = 'none';
-        countBadge.textContent = sentences.length;
-
-        // Sort newest first
-        const sorted = [...sentences].sort((a,b) => new Date(b.date) - new Date(a.date));
-        sorted.forEach(s => {
-            const item = document.createElement('div');
-            item.className = 'sentence-item';
-
-            const main = document.createElement('div');
-            main.className = 'sentence-main';
-
-            const txtDiv = document.createElement('div');
-            txtDiv.className = 'sentence-text';
-            txtDiv.textContent = s.text;
-
-            const transDiv = document.createElement('div');
-            transDiv.className = 'translation-text';
-            transDiv.textContent = s.translation || '(no translation)';
-
-            const meta = document.createElement('div');
-            meta.className = 'meta';
-            const date = new Date(s.date);
-            meta.innerHTML = `<i class="far fa-clock"></i> ${date.toLocaleDateString()} ${date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`;
-
-            main.appendChild(txtDiv);
-            main.appendChild(transDiv);
-            main.appendChild(meta);
-
-            const actions = document.createElement('div');
-            actions.className = 'actions';
-
-            // Play button (if audio exists)
-            const playBtn = document.createElement('button');
-            playBtn.className = 'small-icon-btn';
-            playBtn.title = 'Play audio';
-            playBtn.innerHTML = '<i class="fas fa-play"></i>';
-
-            if (s.audio) {
-                playBtn.addEventListener('click', () => {
-                    // create object URL and play in temporary audio element
-                    const audioURL = URL.createObjectURL(s.audio);
-                    const a = new Audio(audioURL);
-                    a.play();
-                    // revoke after ended
-                    a.onended = () => URL.revokeObjectURL(audioURL);
+            
+            initTheme() {
+                // التحقق من الثيم المخزن
+                const savedTheme = localStorage.getItem('erp-theme') || 'light';
+                this.setTheme(savedTheme);
+                
+                // إعداد زر تبديل الثيم
+                document.getElementById('themeToggle').addEventListener('click', () => {
+                    this.toggleTheme();
                 });
-            } else {
-                playBtn.title = 'No audio recorded';
-                playBtn.style.opacity = '0.5';
-                playBtn.disabled = true;
             }
-
-            // Copy button
-            const copyBtn = document.createElement('button');
-            copyBtn.className = 'small-icon-btn';
-            copyBtn.title = 'Copy sentence';
-            copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
-            copyBtn.addEventListener('click', () => copyToClipboard(s.text));
-
-            // Delete button
-            const delBtn = document.createElement('button');
-            delBtn.className = 'small-icon-btn';
-            delBtn.title = 'Delete';
-            delBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-            delBtn.addEventListener('click', () => deleteSentence(s.id));
-
-            // Download audio button (if audio exists)
-            const dlBtn = document.createElement('button');
-            dlBtn.className = 'small-icon-btn';
-            dlBtn.title = 'Download audio';
-            dlBtn.innerHTML = '<i class="fas fa-download"></i>';
-            if (s.audio) {
-                dlBtn.addEventListener('click', () => {
-                    const url = URL.createObjectURL(s.audio);
+            
+            setTheme(theme) {
+                const html = document.documentElement;
+                const icon = document.getElementById('themeIcon');
+                
+                html.setAttribute('data-bs-theme', theme);
+                this.isDarkTheme = theme === 'dark';
+                
+                if (this.isDarkTheme) {
+                    icon.className = 'bi bi-moon';
+                } else {
+                    icon.className = 'bi bi-sun';
+                }
+                
+                // حفظ الإعداد
+                localStorage.setItem('erp-theme', theme);
+            }
+            
+            toggleTheme() {
+                const newTheme = this.isDarkTheme ? 'light' : 'dark';
+                this.setTheme(newTheme);
+            }
+            
+            async loadSystemData() {
+                try {
+                    // تحميل الحسابات المحاسبية
+                    const accounts = await this.db.getAllAccounts();
+                    const cashAccount = accounts.find(acc => acc.accountCode === '1010');
+                    this.systemData.cashBalance = cashAccount?.balance || 0;
+                    
+                    // تحميل الأصناف
+                    const items = await this.db.getAllItems();
+                    this.systemData.totalItems = items.length;
+                    
+                    // حساب قيمة المخزون
+                    this.systemData.inventoryValue = items.reduce((sum, item) => {
+                        return sum + ((item.stock || 0) * (item.cost || 0));
+                    }, 0);
+                    
+                    // تحميل الفئات
+                    const categories = await this.db.getAllCategories();
+                    this.systemData.totalCategories = categories.length;
+                    
+                    // تحميل العملاء
+                    const customers = await this.db.getAllCustomers();
+                    this.systemData.totalCustomers = customers.length;
+                    
+                    // تحميل الموردين
+                    const suppliers = await this.db.getAllSuppliers();
+                    this.systemData.totalSuppliers = suppliers.length;
+                    
+                    // تحميل الفواتير
+                    const invoices = await this.db.getAllInvoices();
+                    this.systemData.totalInvoices = invoices.length;
+                    
+                    // حساب إجمالي المبيعات
+                    this.systemData.totalSales = invoices.reduce((sum, invoice) => {
+                        return sum + (invoice.total || 0);
+                    }, 0);
+                    
+                    // تحميل المعاملات
+                    const transactions = await this.db.getAll('transactions');
+                    this.systemData.totalTransactions = transactions.length;
+                    
+                    // تحميل معلومات النسخ الاحتياطي
+                    const lastBackup = await this.db.getSetting('LAST_BACKUP');
+                    if (lastBackup) {
+                        document.getElementById('lastBackupTime').textContent = lastBackup;
+                    }
+                    
+                } catch (error) {
+                    console.error('خطأ في تحميل بيانات النظام:', error);
+                }
+            }
+            
+            async loadStorageInfo() {
+                try {
+                    if ('storage' in navigator && 'estimate' in navigator.storage) {
+                        const estimate = await navigator.storage.estimate();
+                        
+                        // تحويل البايتات إلى ميغابايت
+                        this.storageInfo.used = (estimate.usage / (1024 * 1024)).toFixed(2);
+                        this.storageInfo.total = (estimate.quota / (1024 * 1024)).toFixed(2);
+                        this.storageInfo.free = ((estimate.quota - estimate.usage) / (1024 * 1024)).toFixed(2);
+                        this.storageInfo.percentage = ((estimate.usage / estimate.quota) * 100).toFixed(1);
+                        
+                        this.updateStorageUI();
+                    } else {
+                        // تقدير التخزين إذا لم يكن API متاحاً
+                        await this.estimateStorageManually();
+                    }
+                } catch (error) {
+                    console.error('خطأ في تحميل معلومات التخزين:', error);
+                    await this.estimateStorageManually();
+                }
+            }
+            
+            async estimateStorageManually() {
+                try {
+                    // تقدير حجم قاعدة البيانات
+                    let totalSize = 0;
+                    
+                    // تقدير حجم كل مخزن
+                    const stores = ['items', 'categories', 'customers', 'suppliers', 'invoices', 'transactions', 'accounts', 'settings', 'users'];
+                    
+                    for (const store of stores) {
+                        try {
+                            const data = await this.db.getAll(store);
+                            const jsonStr = JSON.stringify(data);
+                            totalSize += new Blob([jsonStr]).size;
+                        } catch (e) {
+                            // تجاهل الأخطاء
+                        }
+                    }
+                    
+                    // تحويل إلى ميغابايت
+                    this.storageInfo.used = (totalSize / (1024 * 1024)).toFixed(2);
+                    this.storageInfo.total = 50; // افتراضي: 50 ميجابايت
+                    this.storageInfo.free = (50 - (totalSize / (1024 * 1024))).toFixed(2);
+                    this.storageInfo.percentage = ((totalSize / (1024 * 1024)) / 50 * 100).toFixed(1);
+                    
+                    this.updateStorageUI();
+                } catch (error) {
+                    console.error('خطأ في تقدير التخزين:', error);
+                }
+            }
+            
+            updateStorageUI() {
+                const usedEl = document.getElementById('usedStorage');
+                const freeEl = document.getElementById('freeStorage');
+                const totalEl = document.getElementById('totalStorage');
+                const progressBar = document.getElementById('storageProgressBar');
+                const percentageEl = document.getElementById('storagePercentage');
+                const statusEl = document.getElementById('storageStatus');
+                const messageEl = document.getElementById('storageMessage');
+                
+                if (usedEl) usedEl.textContent = `${this.storageInfo.used} MB`;
+                if (freeEl) freeEl.textContent = `${this.storageInfo.free} MB`;
+                if (totalEl) totalEl.textContent = `${this.storageInfo.total} MB`;
+                
+                const percentage = parseFloat(this.storageInfo.percentage);
+                if (progressBar) {
+                    progressBar.style.width = `${percentage}%`;
+                    
+                    // تغيير اللون حسب النسبة
+                    if (percentage < 50) {
+                        progressBar.className = 'storage-progress-bar storage-safe';
+                        if (statusEl) statusEl.textContent = 'جيد';
+                        if (messageEl) messageEl.textContent = 'مساحة التخزين في وضع جيد';
+                    } else if (percentage < 80) {
+                        progressBar.className = 'storage-progress-bar storage-moderate';
+                        if (statusEl) statusEl.textContent = 'متوسط';
+                        if (messageEl) messageEl.textContent = 'فكر في عمل نسخة احتياطية';
+                    } else {
+                        progressBar.className = 'storage-progress-bar storage-warning';
+                        if (statusEl) statusEl.textContent = 'حرج';
+                        if (messageEl) messageEl.textContent = 'مساحة التخزين قاربت على الامتلاء';
+                    }
+                }
+                
+                if (percentageEl) percentageEl.textContent = `${this.storageInfo.percentage}% مستخدم`;
+            }
+            
+            updateUI() {
+                // تحديث الإحصائيات
+                document.getElementById('totalSales').textContent = `${this.systemData.totalSales.toFixed(2)} ر.ي`;
+                document.getElementById('inventoryValue').textContent = `${this.systemData.inventoryValue.toFixed(2)} ر.ي`;
+                document.getElementById('totalExpenses').textContent = `${(this.systemData.totalSales * 0.3).toFixed(2)} ر.ي`; // تقديري
+                document.getElementById('cashBalance').textContent = `${this.systemData.cashBalance.toFixed(2)} ر.ي`;
+                
+                // تحديث العدادات
+                document.getElementById('totalItemsCount').textContent = this.systemData.totalItems;
+                document.getElementById('suppliersCount').textContent = this.systemData.totalSuppliers;
+                document.getElementById('transactionsCount').textContent = this.systemData.totalTransactions;
+                
+                // تحديث رسالة الترحيب
+                const hour = new Date().getHours();
+                let greeting = '';
+                
+                if (hour < 12) greeting = 'صباح الخير!';
+                else if (hour < 18) greeting = 'مساء الخير!';
+                else greeting = 'مساء الخير!';
+                
+                document.getElementById('welcomeMessage').textContent = greeting;
+            }
+            
+            setupClock() {
+                // تحديث الوقت والتاريخ
+                const updateTime = () => {
+                    const now = new Date();
+                    const timeString = now.toLocaleTimeString('ar-SA');
+                    const dateString = now.toLocaleDateString('ar-SA', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    
+                    document.getElementById('currentTime').textContent = timeString;
+                    document.getElementById('currentDate').textContent = dateString;
+                };
+                
+                // تحديث الآن
+                updateTime();
+                
+                // تحديث كل ثانية
+                setInterval(updateTime, 1000);
+            }
+            
+            setupEventListeners() {
+                // زر المساعدة
+                document.getElementById('helpBtn').addEventListener('click', () => {
+                    this.showHelpModal();
+                });
+                
+                // زر تحديث التنبيهات
+                document.getElementById('refreshAlertsBtn').addEventListener('click', async () => {
+                    await this.loadAlerts();
+                });
+                
+                // زر تحديث التخزين
+                document.getElementById('refreshStorageBtn').addEventListener('click', async () => {
+                    await this.loadStorageInfo();
+                    this.showNotification('تم تحديث معلومات التخزين', 'success');
+                });
+                
+                // زر النسخ الاحتياطي
+                document.getElementById('backupNowBtn').addEventListener('click', async () => {
+                    await this.createBackup();
+                });
+                
+                // زر المزيد من النصائح
+                document.getElementById('showMoreTipsBtn').addEventListener('click', () => {
+                    this.showDataProtectionTips();
+                });
+                
+                // تحديث البيانات عند العودة للصفحة
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden) {
+                        this.refreshData();
+                    }
+                });
+                
+                // النقر على الشعار الرئيسي
+                document.getElementById('mainLogo').addEventListener('click', () => {
+                    this.refreshData();
+                    this.showNotification('جارٍ تحديث بيانات النظام...', 'info');
+                });
+            }
+            
+            async createBackup() {
+                try {
+                    const backupData = await this.db.backupDatabase();
+                    const backupStr = JSON.stringify(backupData, null, 2);
+                    const blob = new Blob([backupStr], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    // إنشاء رابط للتحميل
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `sentence_audio_${s.id}.webm`;
+                    a.download = `MicroERP-backup-${new Date().toISOString().split('T')[0]}.json`;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
-                });
-            } else {
-                dlBtn.style.opacity = '0.5';
-                dlBtn.disabled = true;
+                    
+                    // حفظ تاريخ النسخ الاحتياطي
+                    const now = new Date().toLocaleString('ar-SA');
+                    await this.db.saveSetting('LAST_BACKUP', now);
+                    document.getElementById('lastBackupTime').textContent = now;
+                    
+                    this.showNotification('تم إنشاء النسخة الاحتياطية بنجاح', 'success');
+                } catch (error) {
+                    console.error('خطأ في إنشاء النسخة الاحتياطية:', error);
+                    this.showNotification('فشل في إنشاء النسخة الاحتياطية', 'danger');
+                }
             }
-
-            actions.appendChild(playBtn);
-            actions.appendChild(dlBtn);
-            actions.appendChild(copyBtn);
-            actions.appendChild(delBtn);
-
-            item.appendChild(main);
-            item.appendChild(actions);
-            sentencesList.appendChild(item);
+            
+            async loadRecentActivities() {
+                try {
+                    const tbody = document.getElementById('recentActivitiesBody');
+                    tbody.innerHTML = '';
+                    
+                    // تحميل الفواتير الحديثة
+                    const invoices = await this.db.getAllInvoices();
+                    const recentInvoices = invoices
+                        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                        .slice(0, 5);
+                    
+                    if (recentInvoices.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">
+                                    لا توجد نشاطات حديثة
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+                    
+                    recentInvoices.forEach((invoice, index) => {
+                        const date = new Date(invoice.createdAt);
+                        const dateString = date.toLocaleDateString('ar-SA');
+                        const timeString = date.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+                        
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${index + 1}</td>
+                            <td>
+                                <div class="fw-bold">فاتورة مبيعات ${invoice.invoiceNumber || ''}</div>
+                                <small class="text-muted">${invoice.customerName || 'نقدي'}</small>
+                            </td>
+                            <td>
+                                <div>${dateString}</div>
+                                <small class="text-muted">${timeString}</small>
+                            </td>
+                            <td>
+                                <span class="badge ${invoice.status === 'paid' ? 'bg-success' : 'bg-warning'}">
+                                    ${invoice.status === 'paid' ? 'مدفوعة' : 'معلقة'}
+                                </span>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                    
+                } catch (error) {
+                    console.error('خطأ في تحميل النشاطات الحديثة:', error);
+                }
+            }
+            
+            async loadAlerts() {
+                try {
+                    const container = document.getElementById('alertsContainer');
+                    container.innerHTML = '';
+                    
+                    // التحقق من الأصناف المنخفضة
+                    const lowStockItems = await this.db.getLowStockItems(10);
+                    
+                    // التحقق من الفواتير المعلقة
+                    const pendingInvoices = await this.db.getInvoicesByStatus('pending');
+                    
+                    // تحميل معلومات التخزين لتحديث التنبيهات
+                    await this.loadStorageInfo();
+                    
+                    // إنشاء قائمة التنبيهات
+                    const alerts = [];
+                    
+                    if (lowStockItems.length > 0) {
+                        alerts.push({
+                            type: 'warning',
+                            message: `${lowStockItems.length} منتج منخفض المخزون`,
+                            icon: 'bi-exclamation-triangle',
+                            action: () => location.href = 'M-items.html'
+                        });
+                    }
+                    
+                    if (pendingInvoices.length > 0) {
+                        alerts.push({
+                            type: 'info',
+                            message: `${pendingInvoices.length} فاتورة معلقة`,
+                            icon: 'bi-clock',
+                            action: () => location.href = 'M-pos.html'
+                        });
+                    }
+                    
+                    // تنبيهات التخزين
+                    const percentage = parseFloat(this.storageInfo.percentage);
+                    if (percentage > 80) {
+                        alerts.push({
+                            type: 'danger',
+                            message: `مساحة التخزين قاربت على الامتلاء (${this.storageInfo.percentage}%)`,
+                            icon: 'bi-hdd',
+                            action: () => document.getElementById('backupNowBtn').click()
+                        });
+                    } else if (percentage > 50) {
+                        alerts.push({
+                            type: 'warning',
+                            message: `مساحة التخزين وصلت ${this.storageInfo.percentage}%`,
+                            icon: 'bi-hdd',
+                            action: () => document.getElementById('refreshStorageBtn').click()
+                        });
+                    }
+                    
+                    // التحقق من الفترة المحاسبية
+                    const periodSetting = await this.db.getSetting('ACCOUNTING_PERIOD');
+                    if (periodSetting && periodSetting.CURRENT_PERIOD) {
+                        const endDate = new Date(periodSetting.CURRENT_PERIOD.endDate);
+                        const today = new Date();
+                        const daysDiff = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+                        
+                        if (daysDiff <= 30 && daysDiff > 0) {
+                            alerts.push({
+                                type: 'primary',
+                                message: `تنتهي الفترة المحاسبية بعد ${daysDiff} يوم`,
+                                icon: 'bi-calendar',
+                                action: () => location.href = 'M-setting.html#accounting-settings'
+                            });
+                        } else if (daysDiff <= 0) {
+                            alerts.push({
+                                type: 'danger',
+                                message: 'الفترة المحاسبية منتهية',
+                                icon: 'bi-calendar-x',
+                                action: () => location.href = 'M-setting.html#accounting-settings'
+                            });
+                        }
+                    }
+                    
+                    // عرض التنبيهات
+                    if (alerts.length === 0) {
+                        container.innerHTML = `
+                            <div class="alert alert-success">
+                                <i class="bi bi-check-circle me-2"></i> لا توجد تنبيهات حالياً
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    alerts.forEach(alert => {
+                        const alertElement = document.createElement('div');
+                        alertElement.className = `alert alert-${alert.type} d-flex align-items-center mb-2 cursor-pointer`;
+                        alertElement.innerHTML = `
+                            <i class="bi ${alert.icon} me-2 fs-5"></i>
+                            <div class="flex-grow-1">${alert.message}</div>
+                            <i class="bi bi-chevron-left"></i>
+                        `;
+                        
+                        if (alert.action) {
+                            alertElement.addEventListener('click', alert.action);
+                        }
+                        
+                        container.appendChild(alertElement);
+                    });
+                    
+                } catch (error) {
+                    console.error('خطأ في تحميل التنبيهات:', error);
+                }
+            }
+            
+            async refreshData() {
+                await this.loadSystemData();
+                this.updateUI();
+                await this.loadRecentActivities();
+                await this.loadAlerts();
+                await this.loadStorageInfo();
+            }
+            
+            showHelpModal() {
+                // إنشاء نافذة المساعدة
+                const helpHTML = `
+                    <div class="modal fade" id="helpModal" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title"><i class="bi bi-question-circle text-primary me-2"></i> مساعدة Micro ERP</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="alert alert-warning">
+                                        <h6><i class="bi bi-exclamation-triangle-fill me-2"></i> تحذير هام</h6>
+                                        <p class="mb-0">بيانات النظام مخزنة محلياً في متصفحك. أي حذف لبيانات المتصفح سيؤدي إلى فقدان جميع بيانات النظام.</p>
+                                    </div>
+                                    
+                                    <div class="accordion" id="helpAccordion">
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header">
+                                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#help1">
+                                                    <i class="bi bi-shield-exclamation me-2"></i> كيفية حماية بياناتك
+                                                </button>
+                                            </h2>
+                                            <div id="help1" class="accordion-collapse collapse show" data-bs-parent="#helpAccordion">
+                                                <div class="accordion-body">
+                                                    <h6>إرشادات السلامة الأساسية:</h6>
+                                                    <ol>
+                                                        <li><strong>استخدم متصفحاً واحداً:</strong> لا تنتقل بين المتصفحات لنفس البيانات</li>
+                                                        <li><strong>لا تمسح بيانات المتصفح:</strong> سيؤدي ذلك إلى حذف جميع بيانات النظام</li>
+                                                        <li><strong>تجنب تحديث المتصفح:</strong> قد تؤثر التحديثات على تخزين البيانات</li>
+                                                        <li><strong>أغلق النوافذ الخاصة:</strong> قد لا تحفظ البيانات بشكل دائم</li>
+                                                        <li><strong>تجنب وضع التصفح الخاص:</strong> قد لا يحفظ البيانات بشكل دائم</li>
+                                                        <li><strong>لا تستخدم أدوات تنظيف:</strong> قد تحذف بيانات IndexedDB</li>
+                                                    </ol>
+                                                    
+                                                    <div class="alert alert-danger mt-3">
+                                                        <i class="bi bi-exclamation-octagon-fill me-2"></i>
+                                                        <strong>تحذير:</strong> أي حذف لبيانات المتصفح (Clear Browsing Data) سيدمر جميع بيانات النظام بشكل كامل ولا يمكن استعادته.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#help2">
+                                                    <i class="bi bi-download me-2"></i> النسخ الاحتياطي والاستعادة
+                                                </button>
+                                            </h2>
+                                            <div id="help2" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                                                <div class="accordion-body">
+                                                    <p><strong>يوصى بعمل نسخة احتياطية يومياً للحفاظ على بياناتك:</strong></p>
+                                                    <ol>
+                                                        <li>اذهب إلى صفحة <strong>الإعدادات</strong></li>
+                                                        <li>اختر <strong>النسخ الاحتياطي</strong></li>
+                                                        <li>انقر على <strong>إنشاء نسخة احتياطية</strong></li>
+                                                        <li>حفظ الملف في مكان آمن (جهاز الكمبيوتر، USB، سحابة)</li>
+                                                    </ol>
+                                                    
+                                                    <div class="alert alert-info mt-3">
+                                                        <i class="bi bi-lightbulb-fill me-2"></i>
+                                                        <strong>نصيحة:</strong> احفظ نسخة احتياطية على جهازين مختلفين على الأقل لتجنب فقدان البيانات.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#help3">
+                                                    <i class="bi bi-tools me-2"></i> استكشاف الأخطاء الشائعة
+                                                </button>
+                                            </h2>
+                                            <div id="help3" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                                                <div class="accordion-body">
+                                                    <div class="alert alert-warning">
+                                                        <strong>لا تظهر البيانات:</strong> تأكد من تفعيل JavaScript في متصفحك.
+                                                    </div>
+                                                    <div class="alert alert-warning">
+                                                        <strong>البطء في التحميل:</strong> قد يكون بسبب كمية البيانات الكبيرة. قم بعمل نسخة احتياطية ومسح البيانات القديمة.
+                                                    </div>
+                                                    <div class="alert alert-warning">
+                                                        <strong>عدم حفظ التغييرات:</strong> تأكد من حفظ البيانات قبل الخروج من الصفحة.
+                                                    </div>
+                                                    <div class="alert alert-danger">
+                                                        <strong>فقدان البيانات:</strong> إذا فقدت بياناتك، حاول استعادتها من آخر نسخة احتياطية.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#help4">
+                                                    <i class="bi bi-hdd me-2"></i> إدارة مساحة التخزين
+                                                </button>
+                                            </h2>
+                                            <div id="help4" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                                                <div class="accordion-body">
+                                                    <h6>مراقبة مساحة التخزين:</h6>
+                                                    <ul>
+                                                        <li>راقب مساحة التخزين بانتظام من الصفحة الرئيسية</li>
+                                                        <li>إذا وصلت المساحة المستخدمة 80%، قم بعمل نسخة احتياطية</li>
+                                                        <li>حذف البيانات القديمة غير الضرورية</li>
+                                                        <li>تصدير التقارير القديمة وحفظها خارج النظام</li>
+                                                    </ul>
+                                                    
+                                                    <div class="mt-3">
+                                                        <button class="btn btn-primary btn-sm" onclick="erpIndex.loadStorageInfo()">
+                                                            <i class="bi bi-arrow-clockwise me-1"></i> تحديث معلومات التخزين
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                                    <button type="button" class="btn btn-primary" onclick="location.href='M-setting.html'">
+                                        <i class="bi bi-gear me-1"></i> الانتقال للإعدادات
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // إضافة النافذة إلى الصفحة إذا لم تكن موجودة
+                if (!document.getElementById('helpModal')) {
+                    const modalContainer = document.createElement('div');
+                    modalContainer.innerHTML = helpHTML;
+                    document.body.appendChild(modalContainer);
+                }
+                
+                // عرض النافذة
+                const helpModal = new bootstrap.Modal(document.getElementById('helpModal'));
+                helpModal.show();
+            }
+            
+            showDataProtectionTips() {
+                const tipsHTML = `
+                    <div class="modal fade" id="tipsModal" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header bg-warning text-dark">
+                                    <h5 class="modal-title"><i class="bi bi-shield-exclamation me-2"></i> نصائح حماية البيانات</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <h6>إرشادات مهمة لحماية بيانات النظام:</h6>
+                                    <ul class="mb-4">
+                                        <li class="mb-2"><strong>المتصفح الثابت:</strong> استخدم نفس المتصفح دائماً ولا تغيره</li>
+                                        <li class="mb-2"><strong>تحديثات المتصفح:</strong> تجنب تحديث المتصفح إلا للضرورة القصوى</li>
+                                        <li class="mb-2"><strong>بيانات التصفح:</strong> لا تضغط على "Clear Browsing Data" أبداً</li>
+                                        <li class="mb-2"><strong>أدوات التنظيف:</strong> لا تستخدم برامج تنظيف الكمبيوتر</li>
+                                        <li class="mb-2"><strong>وضع التصفح الخاص:</strong> لا تستخدم النظام في النوافذ الخاصة</li>
+                                        <li><strong>المتصفحات المختلفة:</strong> لا تستخدم النظام على أكثر من متصفح</li>
+                                    </ul>
+                                    
+                                    <div class="alert alert-danger">
+                                        <h6><i class="bi bi-exclamation-octagon-fill me-2"></i> ما الذي يدمر بيانات النظام؟</h6>
+                                        <ul class="mb-0">
+                                            <li>حذف بيانات التصفح (Clear History)</li>
+                                            <li>تحديث المتصفح إلى إصدار جديد</li>
+                                            <li>استخدام وضع التصفح الخاص</li>
+                                            <li>تثبيت إضافات تنظيف المتصفح</li>
+                                            <li>استعادة إعدادات المصنع للمتصفح</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="alert alert-success mt-3">
+                                        <h6><i class="bi bi-check-circle-fill me-2"></i> أفضل الممارسات</h6>
+                                        <ul class="mb-0">
+                                            <li>عمل نسخة احتياطية يومياً</li>
+                                            <li>حفظ النسخ الاحتياطية في مكانين مختلفين</li>
+                                            <li>اختيار متصفح وعدم تغييره</li>
+                                            <li>تسجيل الخروج من النظام بعد كل استخدام</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">فهمت</button>
+                                    <button type="button" class="btn btn-danger" id="backupNowModalBtn">
+                                        <i class="bi bi-download me-1"></i> نسخ احتياطي الآن
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                if (!document.getElementById('tipsModal')) {
+                    const modalContainer = document.createElement('div');
+                    modalContainer.innerHTML = tipsHTML;
+                    document.body.appendChild(modalContainer);
+                    
+                    document.getElementById('backupNowModalBtn').addEventListener('click', () => {
+                        this.createBackup();
+                        bootstrap.Modal.getInstance(document.getElementById('tipsModal')).hide();
+                    });
+                }
+                
+                const tipsModal = new bootstrap.Modal(document.getElementById('tipsModal'));
+                tipsModal.show();
+            }
+            
+            showNotification(message, type = 'success') {
+                // إنشاء عنصر الإشعار إذا لم يكن موجوداً
+                let notification = document.getElementById('globalNotification');
+                if (!notification) {
+                    notification = document.createElement('div');
+                    notification.id = 'globalNotification';
+                    notification.className = 'position-fixed top-0 end-0 p-3';
+                    notification.style.zIndex = '1060';
+                    document.body.appendChild(notification);
+                }
+                
+                // لون الإشعار
+                const bgColor = type === 'success' ? 'bg-success' : 
+                               type === 'warning' ? 'bg-warning' : 
+                               type === 'danger' ? 'bg-danger' : 'bg-info';
+                
+                // HTML للإشعار
+                notification.innerHTML = `
+                    <div class="toast show" role="alert">
+                        <div class="toast-header ${bgColor} text-white">
+                            <strong class="me-auto">
+                                ${type === 'success' ? 'نجاح' : 
+                                  type === 'warning' ? 'تحذير' : 
+                                  type === 'danger' ? 'خطأ' : 'معلومات'}
+                            </strong>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                        </div>
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                    </div>
+                `;
+                
+                // إخفاء الإشعار بعد 5 ثوانٍ
+                setTimeout(() => {
+                    if (notification) notification.innerHTML = '';
+                }, 5000);
+            }
+        }
+        
+        // تهيئة النظام عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            window.erpIndex = new MicroERPIndex();
+            window.erpIndex.init();
         });
-
-        updateStats();
-    }
-
-    // Update statistics
-    function updateStats() {
-        totalCountElement.textContent = sentences.length;
-        let totalChars = 0;
-        let totalWords = 0;
-        sentences.forEach(s => {
-            totalChars += (s.text || '').length;
-            const words = (s.text || '').split(/\s+/).filter(w => w.length>0);
-            totalWords += words.length;
-        });
-        charCountElement.textContent = totalChars.toLocaleString();
-        wordCountElement.textContent = totalWords.toLocaleString();
-    }
-
-    // Show notification
-    function showNotification(msg, type='info') {
-        const colors = { success:'#48bb78', error:'#f56565', warning:'#ed8936', info:'#4299e1' };
-        notification.style.backgroundColor = colors[type] || colors.info;
-        notificationText.textContent = msg;
-        notification.classList.add('show');
-        setTimeout(() => notification.classList.remove('show'), 3000);
-    }
-
-    // --- When DB changes: load all again (helper) ---
-    // Because audio is stored as Blob we must ensure when fetching they remain Blobs.
-    // indexedDB returns Blobs correctly.
-
-    // Load on DB changes: we're already loading on success of add/delete/clear.
-
-    // End of script
     </script>
 </body>
 </html>
