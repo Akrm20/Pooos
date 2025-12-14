@@ -1,6 +1,8 @@
 /**
  * M-pos.js - نظام نقطة البيع (POS) لنظام Micro ERP
  * يتكامل مع M-core.js و M-database.js
+ * 
+ * تم التحديث لإضافة دعم البيانات التجريبية التلقائية
  */
 
 class MPOS {
@@ -14,6 +16,7 @@ class MPOS {
         this.selectedCustomer = null;
         this.quickSuggestions = [];
         this.isCartVisible = false;
+        this.currentCategoryId = null;
     }
 
     /**
@@ -25,12 +28,174 @@ class MPOS {
             await this.loadInitialData();
             this.setupEventListeners();
             this.updateBalance();
+            
+            // تحميل البيانات (مع خيار إنشاء بيانات تجريبية إذا لم توجد)
+            await this.ensureSampleData();
+            
+            // التحميل العادي
             await this.loadQuickSuggestions();
             await this.loadCategories();
             await this.loadCustomers();
         } catch (error) {
             console.error('خطأ في تهيئة نقطة البيع:', error);
             this.showNotification('خطأ في تحميل النظام', 'danger');
+        }
+    }
+
+    /**
+     * دالة جديدة لضمان وجود بيانات تجريبية
+     */
+    async ensureSampleData() {
+        try {
+            // التحقق من وجود فئات
+            const categories = await this.db.getAll('categories');
+            if (categories.length === 0) {
+                console.log('إنشاء فئات تجريبية...');
+                await this.createSampleCategories();
+            }
+            
+            // التحقق من وجود منتجات
+            const items = await this.db.getAll('items');
+            if (items.length === 0) {
+                console.log('إنشاء منتجات تجريبية...');
+                await this.createSampleProducts();
+            }
+        } catch (error) {
+            console.error('خطأ في إنشاء البيانات التجريبية:', error);
+        }
+    }
+
+    /**
+     * إنشاء فئات تجريبية
+     */
+    async createSampleCategories() {
+        const sampleCategories = [
+            {
+                name: 'مشروبات',
+                icon: '🥤',
+                description: 'المشروبات بأنواعها',
+                isActive: true,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                name: 'معلبات',
+                icon: '🥫',
+                description: 'الأطعمة المعلبة',
+                isActive: true,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                name: 'منظفات',
+                icon: '🧼',
+                description: 'مواد التنظيف',
+                isActive: true,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                name: 'ألبان',
+                icon: '🥛',
+                description: 'منتجات الألبان',
+                isActive: true,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            }
+        ];
+        
+        for (const category of sampleCategories) {
+            await this.db.saveCategory(category);
+        }
+    }
+
+    /**
+     * إنشاء منتجات تجريبية
+     */
+    async createSampleProducts() {
+        const sampleProducts = [
+            {
+                name: 'مياه معدنية',
+                code: 'ITEM-001',
+                categoryId: 1,
+                salePrice: 1.00,
+                costPrice: 0.60,
+                stock: 100,
+                minStock: 10,
+                measurementUnit: 'زجاجة',
+                emoji: '💧',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                name: 'بيبسي',
+                code: 'ITEM-002',
+                categoryId: 1,
+                salePrice: 1.50,
+                costPrice: 1.00,
+                stock: 50,
+                minStock: 5,
+                measurementUnit: 'علبة',
+                emoji: '🥤',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                name: 'سفن أب',
+                code: 'ITEM-003',
+                categoryId: 1,
+                salePrice: 1.50,
+                costPrice: 1.00,
+                stock: 50,
+                minStock: 5,
+                measurementUnit: 'علبة',
+                emoji: '🧃',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                name: 'فاصوليا',
+                code: 'ITEM-004',
+                categoryId: 2,
+                salePrice: 3.50,
+                costPrice: 2.50,
+                stock: 30,
+                minStock: 3,
+                measurementUnit: 'علبة',
+                emoji: '🥫',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                name: 'صابون',
+                code: 'ITEM-005',
+                categoryId: 3,
+                salePrice: 2.00,
+                costPrice: 1.20,
+                stock: 40,
+                minStock: 5,
+                measurementUnit: 'حبة',
+                emoji: '🧼',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                name: 'حليب',
+                code: 'ITEM-006',
+                categoryId: 4,
+                salePrice: 2.50,
+                costPrice: 1.80,
+                stock: 25,
+                minStock: 3,
+                measurementUnit: 'لتر',
+                emoji: '🥛',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            }
+        ];
+        
+        for (const product of sampleProducts) {
+            await this.db.saveItem(product);
         }
     }
 
@@ -110,6 +275,15 @@ class MPOS {
         
         // مشاركة عبر واتساب
         document.getElementById('shareWhatsappBtn').addEventListener('click', () => this.shareViaWhatsapp());
+        
+        // زر تحديث البيانات يدوياً (تمت الإضافة)
+        if (document.getElementById('refreshDataBtn')) {
+            document.getElementById('refreshDataBtn').addEventListener('click', async () => {
+                await this.loadCategories();
+                await this.loadQuickSuggestions();
+                this.showNotification('تم تحديث البيانات', 'success');
+            });
+        }
     }
 
     /**
@@ -253,6 +427,24 @@ class MPOS {
         });
     }
 
+    /**
+     * دالة لفحص البيانات (للاستخدام في الكونسول)
+     */
+    async debugData() {
+        console.log('=== فحص بيانات نقطة البيع ===');
+        
+        const categories = await this.db.getAll('categories');
+        console.log('الفئات:', categories);
+        
+        const items = await this.db.getAll('items');
+        console.log('المنتجات:', items);
+        
+        // تصفية المنتجات النشطة
+        const activeItems = items.filter(item => !item.deleted && item.stock > 0);
+        console.log('المنتجات النشطة:', activeItems);
+        
+        return { categories, items, activeItems };
+    }
     /**
      * البحث عن المنتجات
      */
