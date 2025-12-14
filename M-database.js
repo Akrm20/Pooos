@@ -44,9 +44,17 @@ class MDatabase {
                 reject(event.target.error);
             };
 
-            request.onsuccess = (event) => {
+            request.onsuccess = async (event) => {
                 this.db = event.target.result;
                 console.log("تم فتح قاعدة البيانات بنجاح.");
+                
+                // تهيئة الحسابات الافتراضية بعد فتح قاعدة البيانات
+                try {
+                    await this.initializeDefaultAccounts();
+                } catch (initError) {
+                    console.warn('تحذير: فشل تهيئة الحسابات الافتراضية:', initError);
+                }
+                
                 resolve(this.db);
             };
 
@@ -104,6 +112,7 @@ class MDatabase {
                             store = db.createObjectStore(storeName, { keyPath: 'id', autoIncrement: true });
                             store.createIndex('name', 'name', { unique: false });
                             store.createIndex('phone', 'phone', { unique: false });
+                            store.createIndex('code', 'code', { unique: true });
                         } else if (storeName === 'users') {
                             // مخزن المستخدمين: مفتاح تلقائي
                             store = db.createObjectStore(storeName, { keyPath: 'id', autoIncrement: true });
@@ -123,6 +132,106 @@ class MDatabase {
                 });
             };
         });
+    }
+
+    /**
+     * تهيئة جميع الحسابات من CHART_OF_ACCOUNTS إذا لم تكن موجودة
+     */
+    async initializeDefaultAccounts() {
+        try {
+            const accounts = await this.getAllAccounts();
+            
+            if (accounts.length === 0) {
+                console.log('جارٍ تهيئة شجرة الحسابات الكاملة...');
+                
+                let accountsCreated = 0;
+                
+                // الطريقة 1: استخدام CHART_OF_ACCOUNTS إذا كان متاحاً
+                if (window.CHART_OF_ACCOUNTS && typeof window.CHART_OF_ACCOUNTS === 'object') {
+                    console.log('تم العثور على CHART_OF_ACCOUNTS، جارٍ تحميل جميع الحسابات...');
+                    
+                    for (const category in window.CHART_OF_ACCOUNTS) {
+                        for (const code in window.CHART_OF_ACCOUNTS[category]) {
+                            try {
+                                const account = { ...window.CHART_OF_ACCOUNTS[category][code] };
+                                
+                                // تأكد من وجود القيم الأساسية
+                                if (!account.accountCode) account.accountCode = code;
+                                if (!account.name) account.name = `حساب ${code}`;
+                                if (typeof account.balance !== 'number') account.balance = 0;
+                                if (!account.createdAt) account.createdAt = new Date().toISOString();
+                                
+                                await this.saveAccount(account);
+                                accountsCreated++;
+                            } catch (accountError) {
+                                console.error(`خطأ في حفظ الحساب ${code}:`, accountError);
+                            }
+                        }
+                    }
+                    
+                    console.log(`تم تحميل ${accountsCreated} حساب من CHART_OF_ACCOUNTS`);
+                } 
+                // الطريقة 2: إذا لم يكن CHART_OF_ACCOUNTS متاحاً، أنشئ الحسابات الأساسية
+                else {
+                    console.warn('لم يتم العثور على CHART_OF_ACCOUNTS، جارٍ إنشاء الحسابات الأساسية...');
+                    
+                    const basicAccounts = this.getBasicAccounts();
+                    for (const account of basicAccounts) {
+                        await this.saveAccount(account);
+                        accountsCreated++;
+                    }
+                    
+                    console.log(`تم إنشاء ${accountsCreated} حساب أساسي`);
+                }
+                
+                return accountsCreated > 0;
+            }
+            
+            console.log(`تم العثور على ${accounts.length} حساب في قاعدة البيانات`);
+            return false;
+        } catch (error) {
+            console.error('خطأ في تهيئة الحسابات الافتراضية:', error);
+            return false;
+        }
+    }
+
+    /**
+     * إرجاع الحسابات الأساسية (للطريقة الاحتياطية)
+     */
+    getBasicAccounts() {
+        return [
+            // الأصول (1xxx)
+            { accountCode: '1000', name: 'الأصول', type: 'asset', parent: null, balance: 0, description: 'مجموع الأصول' },
+            { accountCode: '1010', name: 'الصندوق', type: 'asset', parent: '1000', balance: 0, description: 'النقدية في الصندوق' },
+            { accountCode: '1020', name: 'البنك', type: 'asset', parent: '1000', balance: 0, description: 'الحسابات البنكية' },
+            { accountCode: '1030', name: 'المخزون', type: 'asset', parent: '1000', balance: 0, description: 'بضاعة المخزن' },
+            { accountCode: '1040', name: 'العملاء', type: 'asset', parent: '1000', balance: 0, description: 'ذمم العملاء المدينة' },
+            { accountCode: '1050', name: 'أصول ثابتة', type: 'asset', parent: '1000', balance: 0, description: 'المباني، المعدات، السيارات' },
+            { accountCode: '1070', name: 'ضريبة المدخلات', type: 'asset', parent: '1000', balance: 0, description: 'ضريبة المشتريات' },
+            
+            // الخصوم (2xxx)
+            { accountCode: '2000', name: 'الخصوم', type: 'liability', parent: null, balance: 0, description: 'مجموع الخصوم' },
+            { accountCode: '2010', name: 'الموردين', type: 'liability', parent: '2000', balance: 0, description: 'ذمم الموردين الدائنة' },
+            { accountCode: '2040', name: 'ضرائب مستحقة', type: 'liability', parent: '2000', balance: 0, description: 'مجموع الضرائب المستحقة' },
+            { accountCode: '2041', name: 'ضريبة المخرجات', type: 'liability', parent: '2040', balance: 0, description: 'ضريبة المبيعات' },
+            
+            // حقوق الملكية (3xxx)
+            { accountCode: '3000', name: 'حقوق الملكية', type: 'equity', parent: null, balance: 0, description: 'مجموع حقوق الملكية' },
+            { accountCode: '3010', name: 'رأس المال', type: 'equity', parent: '3000', balance: 0, description: 'رأس مال المالك' },
+            { accountCode: '3040', name: 'مسحوبات شخصية', type: 'equity', parent: '3000', balance: 0, description: 'السحوبات الشخصية للمالك' },
+            
+            // الإيرادات (4xxx)
+            { accountCode: '4000', name: 'الإيرادات', type: 'revenue', parent: null, balance: 0, description: 'مجموع الإيرادات' },
+            { accountCode: '4010', name: 'مبيعات', type: 'revenue', parent: '4000', balance: 0, description: 'إيرادات المبيعات' },
+            { accountCode: '4030', name: 'خصومات مبيعات', type: 'revenue', parent: '4000', balance: 0, description: 'الخصومات على المبيعات' },
+            
+            // المصروفات (5xxx)
+            { accountCode: '5000', name: 'المصروفات', type: 'expense', parent: null, balance: 0, description: 'مجموع المصروفات' },
+            { accountCode: '5010', name: 'تكلفة البضاعة المباعة', type: 'expense', parent: '5000', balance: 0, description: 'تكلفة البيع' },
+            { accountCode: '5020', name: 'مصاريف تشغيل', type: 'expense', parent: '5000', balance: 0, description: 'مصاريف التشغيل' },
+            { accountCode: '5030', name: 'رواتب وأجور', type: 'expense', parent: '5000', balance: 0, description: 'رواتب الموظفين' },
+            { accountCode: '5110', name: 'مصاريف الضرائب', type: 'expense', parent: '5000', balance: 0, description: 'مصاريف الضرائب' }
+        ];
     }
 
     /**
@@ -177,7 +286,7 @@ class MDatabase {
      * @param {IDBKeyRange} range - نطاق المفاتيح (مثلاً IDBKeyRange.only('value')).
      * @returns {Promise<any[]>} وعد بقائمة الكائنات.
      */
-    filter(storeName, indexName, range) {
+    async filter(storeName, indexName, range) {
         return this.execute(storeName, 'readonly', (store) => {
             const index = store.index(indexName);
             return index.getAll(range);
@@ -379,7 +488,7 @@ class MDatabase {
      * @param {string} parentCode - رقم الحساب الرئيسي.
      * @returns {Promise<object[]>} وعد بقائمة الحسابات الفرعية.
      */
-    getAccountsByParent(parentCode) {
+    async getAccountsByParent(parentCode) {
         return this.filter('accounts', 'parent', IDBKeyRange.only(parentCode));
     }
 
@@ -390,7 +499,7 @@ class MDatabase {
      * @param {object} transaction - كائن المعاملة.
      * @returns {Promise<number>} وعد بمفتاح المعاملة (ID).
      */
-    addTransaction(transaction) {
+    async addTransaction(transaction) {
         // تأكد من وجود التاريخ
         if (!transaction.date) {
             transaction.date = new Date().toISOString().split('T')[0];
@@ -410,7 +519,7 @@ class MDatabase {
      * @param {string} endDate - تاريخ النهاية (YYYY-MM-DD).
      * @returns {Promise<object[]>} وعد بقائمة المعاملات.
      */
-    getTransactionsByDateRange(startDate, endDate) {
+    async getTransactionsByDateRange(startDate, endDate) {
         return this.execute('transactions', 'readonly', (store) => {
             const index = store.index('date');
             const range = IDBKeyRange.bound(startDate, endDate);
@@ -423,7 +532,7 @@ class MDatabase {
      * @param {string} type - نوع المعاملة (sale, purchase, journal, etc.).
      * @returns {Promise<object[]>} وعد بقائمة المعاملات.
      */
-    getTransactionsByType(type) {
+    async getTransactionsByType(type) {
         return this.filter('transactions', 'type', IDBKeyRange.only(type));
     }
 
@@ -434,7 +543,7 @@ class MDatabase {
      * @param {object} item - كائن المنتج.
      * @returns {Promise<any>}
      */
-    saveItem(item) {
+    async saveItem(item) {
         // توليد كود تلقائي إذا لم يكن موجودًا
         if (!item.code) {
             item.code = `ITEM-${Date.now().toString().substr(-6)}`;
@@ -489,7 +598,7 @@ class MDatabase {
      * @param {boolean} activeOnly - إرجاع المنتجات النشطة فقط.
      * @returns {Promise<object[]>} وعد بقائمة المنتجات.
      */
-    getItemsByCategory(categoryId, activeOnly = true) {
+    async getItemsByCategory(categoryId, activeOnly = true) {
         return this.execute('items', 'readonly', async (store) => {
             const index = store.index('categoryId');
             const items = await index.getAll(categoryId);
@@ -537,7 +646,7 @@ class MDatabase {
      * @param {object} category - كائن الفئة.
      * @returns {Promise<any>}
      */
-    saveCategory(category) {
+    async saveCategory(category) {
         // تأكد من وجود التواريخ
         if (!category.createdAt) {
             category.createdAt = new Date().toISOString();
@@ -583,7 +692,7 @@ class MDatabase {
      * @param {number} parentId - معرف الفئة الرئيسية.
      * @returns {Promise<object[]>} وعد بقائمة الفئات.
      */
-    getSubCategories(parentId) {
+    async getSubCategories(parentId) {
         return this.filter('categories', 'parentId', IDBKeyRange.only(parentId));
     }
 
@@ -594,7 +703,7 @@ class MDatabase {
      * @param {object} customer - كائن العميل.
      * @returns {Promise<any>}
      */
-    saveCustomer(customer) {
+    async saveCustomer(customer) {
         // توليد كود تلقائي إذا لم يكن موجودًا
         if (!customer.code) {
             customer.code = `CUST-${Date.now().toString().substr(-6)}`;
@@ -603,10 +712,27 @@ class MDatabase {
         // تأكد من وجود التواريخ
         if (!customer.createdAt) {
             customer.createdAt = new Date().toISOString();
+            customer.updatedAt = new Date().toISOString();
+            
+            // توليد كود عميل تلقائي
+            if (!customer.code) {
+                const count = await this.count('customers');
+                customer.code = `CUST-${(count + 1).toString().padStart(4, '0')}`;
+            }
+        } else {
+            customer.updatedAt = new Date().toISOString();
         }
-        customer.updatedAt = new Date().toISOString();
         
         return this.put('customers', customer);
+    }
+
+    /**
+     * يحصل على عميل معين.
+     * @param {number} id - معرف العميل.
+     * @returns {Promise<object>} وعد بكائن العميل.
+     */
+    getCustomer(id) {
+        return this.get('customers', id);
     }
 
     /**
@@ -638,7 +764,15 @@ class MDatabase {
              customer.code?.toLowerCase().includes(term))
         );
     }
-    saveSupplier(supplier) {
+
+    // ==================== دوال خاصة بالموردين ====================
+
+    /**
+     * يحفظ موردًا جديدًا أو يحدث موردًا موجودًا.
+     * @param {object} supplier - كائن المورد.
+     * @returns {Promise<any>}
+     */
+    async saveSupplier(supplier) {
         // توليد كود تلقائي إذا لم يكن موجوداً
         if (!supplier.code) {
             supplier.code = `SUPP-${Date.now().toString().substr(-6)}`;
@@ -652,6 +786,20 @@ class MDatabase {
     
         return this.put('suppliers', supplier);
     }
+
+    /**
+     * يحصل على جميع الموردين.
+     * @param {boolean} activeOnly - إرجاع الموردين النشطين فقط.
+     * @returns {Promise<object[]>} وعد بقائمة الموردين.
+     */
+    async getAllSuppliers(activeOnly = true) {
+        const suppliers = await this.getAll('suppliers');
+        if (activeOnly) {
+            return suppliers.filter(supplier => !supplier.deleted);
+        }
+        return suppliers;
+    }
+
     // ==================== دوال خاصة بالفواتير ====================
 
     /**
@@ -659,7 +807,7 @@ class MDatabase {
      * @param {object} invoice - كائن الفاتورة.
      * @returns {Promise<any>}
      */
-    saveInvoice(invoice) {
+    async saveInvoice(invoice) {
         // توليد رقم فاتورة تلقائي إذا لم يكن موجودًا
         if (!invoice.invoiceNumber) {
             const date = new Date();
@@ -720,7 +868,7 @@ class MDatabase {
      * @param {number} customerId - معرف العميل.
      * @returns {Promise<object[]>} وعد بقائمة الفواتير.
      */
-    getInvoicesByCustomer(customerId) {
+    async getInvoicesByCustomer(customerId) {
         return this.filter('invoices', 'customerId', IDBKeyRange.only(customerId));
     }
 
@@ -730,7 +878,7 @@ class MDatabase {
      * @param {string} endDate - تاريخ النهاية (YYYY-MM-DD).
      * @returns {Promise<object[]>} وعد بقائمة الفواتير.
      */
-    getInvoicesByDateRange(startDate, endDate) {
+    async getInvoicesByDateRange(startDate, endDate) {
         return this.execute('invoices', 'readonly', (store) => {
             const index = store.index('date');
             const range = IDBKeyRange.bound(startDate, endDate);
@@ -743,7 +891,7 @@ class MDatabase {
      * @param {string} status - حالة الدفع (paid, pending, cancelled).
      * @returns {Promise<object[]>} وعد بقائمة الفواتير.
      */
-    getInvoicesByStatus(status) {
+    async getInvoicesByStatus(status) {
         return this.filter('invoices', 'status', IDBKeyRange.only(status));
     }
 
@@ -754,7 +902,7 @@ class MDatabase {
      * @param {object} user - كائن المستخدم.
      * @returns {Promise<any>}
      */
-    saveUser(user) {
+    async saveUser(user) {
         // تشفير كلمة المرور (يجب أن يتم على الخادم في التطبيقات الحقيقية)
         if (user.password && !user.password.startsWith('encrypted:')) {
             user.password = `encrypted:${btoa(user.password)}`;
@@ -798,22 +946,6 @@ class MDatabase {
         }
         return users;
     }
-
-    // ==================== دوال خاصة بالموردين ====================
-
-    /**
-     * يحصل على جميع الموردين.
-     * @param {boolean} activeOnly - إرجاع الموردين النشطين فقط.
-     * @returns {Promise<object[]>} وعد بقائمة الموردين.
-     */
-    async getAllSuppliers(activeOnly = true) {
-        const suppliers = await this.getAll('suppliers');
-        if (activeOnly) {
-            return suppliers.filter(supplier => !supplier.deleted);
-        }
-        return suppliers;
-    }
-
 
     // ==================== دوال إحصائية ====================
 
@@ -880,18 +1012,17 @@ async function initializeDefaultData() {
         const companyInfo = await db.getSetting('COMPANY_INFO');
         if (!companyInfo) {
             // حفظ بيانات الشركة الافتراضية من M-core.js
-            await db.saveSetting('COMPANY_INFO', window.COMPANY_INFO);
+            if (window.COMPANY_INFO) {
+                await db.saveSetting('COMPANY_INFO', window.COMPANY_INFO);
+                console.log('تم حفظ بيانات الشركة الافتراضية');
+            }
         }
         
-        // التحقق من وجود الحسابات المحاسبية
-        const accounts = await db.getAllAccounts();
-        if (accounts.length === 0 && window.CHART_OF_ACCOUNTS) {
-            // حفظ شجرة الحسابات الافتراضية
-            for (const category in window.CHART_OF_ACCOUNTS) {
-                for (const code in window.CHART_OF_ACCOUNTS[category]) {
-                    await db.saveAccount(window.CHART_OF_ACCOUNTS[category][code]);
-                }
-            }
+        // التحقق من وجود الفترة المحاسبية
+        const accountingPeriod = await db.getSetting('ACCOUNTING_PERIOD');
+        if (!accountingPeriod && window.ACCOUNTING_PERIOD) {
+            await db.saveSetting('ACCOUNTING_PERIOD', window.ACCOUNTING_PERIOD);
+            console.log('تم حفظ إعدادات الفترة المحاسبية');
         }
         
         // إضافة مستخدم افتراضي
@@ -905,6 +1036,7 @@ async function initializeDefaultData() {
                 role: 'admin',
                 active: true
             });
+            console.log('تم إنشاء المستخدم الافتراضي');
         }
         
         console.log('تم تهيئة البيانات الافتراضية بنجاح');
