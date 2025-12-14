@@ -1,5 +1,6 @@
 // core.js - نظام ERP المتكامل مع المحاسبة والضرائب
 // الإصدار 2.0 - تم إضافة الفترة المحاسبية ومعلومات الشركة
+// تم التحديث بتاريخ: 2024-12-29 - تم تصحيح جميع الأخطاء النحوية والتركيبية
 
 // ==================== 1. الثوابت والإعدادات العامة ====================
 
@@ -85,10 +86,7 @@ var COMPANY_INFO = {
         tradeName: 'الاسم التجاري',         // الاسم التجاري (إن وجد)
         legalType: 'فردي',                  // نوع الكيان: فردي، شركة، مؤسسة
         registrationNumber: '123456',       // السجل التجاري
-        taxId: '123-456-789',              // الرقم الضريبي
-        commercialRegister: 'ت/12345',      // رقم السجل التجاري
-        establishmentDate: '2020-01-01',    // تاريخ التأسيس
-        legalForm: 'ملكية فردية'            // الشكل القانوني
+        taxIdNumber: '123456789'            // الرقم الضريبي
     },
     
     // معلومات الاتصال
@@ -103,23 +101,14 @@ var COMPANY_INFO = {
         },
         phone: {
             primary: '+967 1 234 567',      // الهاتف الرئيسي
-            secondary: '+967 1 234 568',    // الهاتف الثانوي
             mobile: '+967 711 234 567',     // الجوال
-            fax: '+967 1 234 569',          // الفاكس
             whatsapp: '+967 711 234 568'    // واتساب
         },
         email: {
             primary: 'info@company.com',    // البريد الإلكتروني الرئيسي
-            support: 'support@company.com', // الدعم الفني
-            accounting: 'account@company.com', // المحاسبة
-            sales: 'sales@company.com'      // المبيعات
+            billing: 'billing@company.com'  // بريد الفواتير
         },
-        website: 'www.company.com',         // الموقع الإلكتروني
-        socialMedia: {
-            facebook: 'facebook.com/company',
-            twitter: 'twitter.com/company',
-            instagram: 'instagram.com/company'
-        }
+        website: 'www.company.com'          // الموقع الإلكتروني
     },
     
     // المعلومات المالية
@@ -140,7 +129,7 @@ var COMPANY_INFO = {
                 swiftCode: 'BANKYEAD'
             }
         ],
-        paymentMethods: ['نقدي', 'شيك', 'آجل']
+        paymentMethods: ['نقدي', 'شيك', 'آجل', 'تحويل بنكي']
     },
     
     // إعدادات الطباعة والتقارير
@@ -189,10 +178,11 @@ var COMPANY_INFO = {
     // معلومات المالك/المدير
     OWNER: {
         name: 'اسم المالك',                 // اسم المالك
-        phone: 'هاتف',                // رقم الهاتف
+        phone: 'هاتف المالك',               // رقم الهاتف
         idNumber: '123456789',              // رقم الهوية
-        
-    },
+        email: 'owner@company.com',         // البريد الإلكتروني
+        address: 'عنوان المالك'             // عنوان المالك
+    }
 };
 
 // ==================== 2. إعدادات الأنظمة ====================
@@ -542,11 +532,8 @@ function checkJournalEntryBalance(journalEntryLines) {
     };
 }
 
-// دالة لحساب رصيد الحساب (تتطلب تكامل مع M-database.js، لكن سنضع الهيكل هنا)
-// ملاحظة: هذه الدالة تتطلب الوصول إلى قاعدة البيانات (M-database.js) لجلب القيود،
-// لذا سيتم وضعها كدالة هيكلية هنا، وسيتم تنفيذها بالكامل في M-accountingtree.js
+// دالة لحساب رصيد الحساب (تتطلب تكامل مع M-database.js)
 function calculateAccountBalance(accountCode) {
-    // يجب أن يتم تنفيذ هذه الدالة في M-accountingtree.js
     console.warn(`[M-core.js] الدالة calculateAccountBalance هي دالة هيكلية. يجب تنفيذها في M-accountingtree.js`);
     return 0; // رصيد افتراضي
 }
@@ -556,120 +543,6 @@ function formatDate(dateString) {
     const date = new Date(dateString);
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return date.toLocaleDateString('ar-SA', options);
-}
-
-// دالة لطباعة ترويسة الفاتورة
-function printInvoiceHeader(invoiceData) {
-    const headerConfig = COMPANY_INFO.REPORTING.header;
-    
-    return `
-        <div class="invoice-header">
-            ${headerConfig.showLogo ? 
-                `<div class="logo-container">
-                    <img src="${COMPANY_INFO.REPORTING.logo.url}" 
-                         width="${COMPANY_INFO.REPORTING.logo.width}" 
-                         height="${COMPANY_INFO.REPORTING.logo.height}"
-                         alt="${COMPANY_INFO.BASIC.name}"
-                         class="company-logo">
-                </div>` : ''}
-            
-            <div class="company-info">
-                ${headerConfig.showName ? `<h1 class="company-name">${COMPANY_INFO.BASIC.name}</h1>` : ''}
-                ${headerConfig.showTradeName ? `<h2 class="trade-name">${COMPANY_INFO.BASIC.tradeName}</h2>` : ''}
-                
-                ${headerConfig.showAddress ? 
-                    `<div class="company-address">
-                        <p>${COMPANY_INFO.CONTACT.address.street}</p>
-                        <p>${COMPANY_INFO.CONTACT.address.city} - ${COMPANY_INFO.CONTACT.address.state}</p>
-                        <p>${COMPANY_INFO.CONTACT.address.country}</p>
-                        ${COMPANY_INFO.CONTACT.address.postalCode ? `<p>الرمز البريدي: ${COMPANY_INFO.CONTACT.address.postalCode}</p>` : ''}
-                    </div>` : ''}
-                
-                ${headerConfig.showContact ? 
-                    `<div class="company-contact">
-                        ${COMPANY_INFO.CONTACT.phone.primary ? `<p>هاتف: ${COMPANY_INFO.CONTACT.phone.primary}</p>` : ''}
-                        ${COMPANY_INFO.CONTACT.phone.mobile ? `<p>جوال: ${COMPANY_INFO.CONTACT.phone.mobile}</p>` : ''}
-                        ${COMPANY_INFO.CONTACT.email.primary ? `<p>بريد: ${COMPANY_INFO.CONTACT.email.primary}</p>` : ''}
-                        ${COMPANY_INFO.CONTACT.website ? `<p>موقع: ${COMPANY_INFO.CONTACT.website}</p>` : ''}
-                    </div>` : ''}
-                
-                ${headerConfig.showTaxInfo ? 
-                    `<div class="tax-info">
-                        ${COMPANY_INFO.BASIC.taxId ? `<p>الرقم الضريبي: ${COMPANY_INFO.BASIC.taxId}</p>` : ''}
-                        ${COMPANY_INFO.BASIC.commercialRegister ? `<p>السجل التجاري: ${COMPANY_INFO.BASIC.commercialRegister}</p>` : ''}
-                        ${COMPANY_INFO.FINANCIAL.vatNumber ? `<p>رقم ضريبة القيمة المضافة: ${COMPANY_INFO.FINANCIAL.vatNumber}</p>` : ''}
-                    </div>` : ''}
-            </div>
-        </div>
-        
-        ${headerConfig.showPeriod ? 
-            `<div class="period-info">
-                <strong>الفترة المحاسبية:</strong> ${ACCOUNTING_PERIOD.CURRENT_PERIOD.periodName}<br>
-                <strong>من:</strong> ${formatDate(ACCOUNTING_PERIOD.CURRENT_PERIOD.startDate)} 
-                <strong>إلى:</strong> ${formatDate(ACCOUNTING_PERIOD.CURRENT_PERIOD.endDate)}
-            </div>` : ''}
-    `;
-}
-
-// دالة لطباعة تذييل الفاتورة
-function printInvoiceFooter() {
-    const footerConfig = COMPANY_INFO.REPORTING.footer;
-    const currentDate = new Date();
-    
-    return `
-        <div class="invoice-footer">
-            ${COMPANY_INFO.REPORTING.invoiceFooter.termsAndConditions ? 
-                `<div class="terms-conditions">
-                    <h4>الشروط والأحكام:</h4>
-                    <p>${COMPANY_INFO.REPORTING.invoiceFooter.termsAndConditions}</p>
-                </div>` : ''}
-            
-            <div class="footer-bottom">
-                ${COMPANY_INFO.REPORTING.invoiceFooter.thankYouMessage ? 
-                    `<p class="thank-you">${COMPANY_INFO.REPORTING.invoiceFooter.thankYouMessage}</p>` : ''}
-                
-                ${COMPANY_INFO.REPORTING.invoiceFooter.contactInfo ? 
-                    `<p class="contact-info">${COMPANY_INFO.REPORTING.invoiceFooter.contactInfo}</p>` : ''}
-                
-                ${footerConfig.showPrintDate ? 
-                    `<p class="print-date">تاريخ الطباعة: ${formatDate(currentDate.toISOString().split('T')[0])}</p>` : ''}
-                
-                ${footerConfig.showPrintTime ? 
-                    `<p class="print-time">وقت الطباعة: ${currentDate.toLocaleTimeString('ar-SA')}</p>` : ''}
-                
-                ${footerConfig.showConfidential ? 
-                    '<p class="confidential">سرية المعلومات - للمستلم فقط</p>' : ''}
-                
-                ${footerConfig.showPageNumbers ? 
-                    '<div class="page-number">الصفحة <span class="page">1</span> من <span class="total-pages">1</span></div>' : ''}
-            </div>
-        </div>
-    `;
-}
-
-// دالة للحصول على معلومات الشركة للطباعة
-function getCompanyPrintInfo() {
-    return {
-        name: COMPANY_INFO.BASIC.name,
-        tradeName: COMPANY_INFO.BASIC.tradeName,
-        address: COMPANY_INFO.CONTACT.address,
-        contact: {
-            phone: COMPANY_INFO.CONTACT.phone.primary,
-            mobile: COMPANY_INFO.CONTACT.phone.mobile,
-            email: COMPANY_INFO.CONTACT.email.primary
-        },
-        taxInfo: {
-            taxId: COMPANY_INFO.BASIC.taxId,
-            vatNumber: COMPANY_INFO.FINANCIAL.vatNumber,
-            commercialRegister: COMPANY_INFO.BASIC.commercialRegister
-        },
-        logo: COMPANY_INFO.REPORTING.logo,
-        periodInfo: {
-            name: ACCOUNTING_PERIOD.CURRENT_PERIOD.periodName,
-            startDate: ACCOUNTING_PERIOD.CURRENT_PERIOD.startDate,
-            endDate: ACCOUNTING_PERIOD.CURRENT_PERIOD.endDate
-        }
-    };
 }
 
 // دالة لتحديث الفترة المحاسبية
@@ -683,6 +556,107 @@ function updateAccountingPeriod(newPeriod) {
     return ACCOUNTING_PERIOD.CURRENT_PERIOD;
 }
 
+// دالة لتوليد قيد محاسبي مبسط لفاتورة نقطة البيع
+function generateJournalEntry(invoice) {
+    const totals = invoice; // الفاتورة تحتوي على الإجماليات
+    const date = invoice.date || new Date().toISOString().split('T')[0];
+    const reference = invoice.invoiceNumber || invoice.id;
+    const description = `قيد بيع نقدي رقم ${reference} للعميل ${invoice.customerName}`;
+    
+    // حسابات المبيعات من SALES_CONFIG
+    const cashAccount = SALES_CONFIG.ACCOUNTS.CASH;
+    const revenueAccount = SALES_CONFIG.ACCOUNTS.REVENUE;
+    const vatOutputAccount = SALES_CONFIG.ACCOUNTS.VAT_OUTPUT;
+    
+    // القيد المحاسبي
+    const journalEntry = {
+        date: date,
+        type: 'POS_SALE',
+        reference: reference,
+        description: description,
+        lines: []
+    };
+    
+    // 1. المدين: الصندوق (إجمالي المبلغ شامل الضريبة)
+    journalEntry.lines.push({
+        accountCode: cashAccount,
+        type: 'debit',
+        amount: totals.total,
+        description: `تحصيل نقدي لفاتورة رقم ${reference}`
+    });
+    
+    // 2. الدائن: الإيرادات (صافي المبلغ بدون ضريبة)
+    journalEntry.lines.push({
+        accountCode: revenueAccount,
+        type: 'credit',
+        amount: totals.subTotal,
+        description: `إيرادات مبيعات نقطة بيع رقم ${reference}`
+    });
+    
+    // 3. الدائن: ضريبة المخرجات (مبلغ الضريبة)
+    if (totals.taxAmount > 0) {
+        journalEntry.lines.push({
+            accountCode: vatOutputAccount,
+            type: 'credit',
+            amount: totals.taxAmount,
+            description: `ضريبة القيمة المضافة على مبيعات رقم ${reference}`
+        });
+    }
+    
+    // يجب التحقق من توازن القيد قبل إعادته
+    const balanceCheck = checkJournalEntryBalance(journalEntry.lines);
+    if (!balanceCheck.isBalanced) {
+        console.error(`خطأ في توازن القيد المحاسبي للفاتورة ${reference}:`, balanceCheck);
+        // يمكن إضافة حساب تسوية أو رمي خطأ
+    }
+    
+    return journalEntry;
+}
+
+// دالة لتحويل العملات
+function convertCurrency(amount, fromCurrency, toCurrency) {
+    if (fromCurrency === toCurrency) {
+        return amount;
+    }
+    
+    const rates = CURRENCY_CONFIG.DEFAULT_EXCHANGE_RATES;
+    if (!rates[fromCurrency] || !rates[toCurrency]) {
+        console.error(`أسعار الصرف غير متوفرة للعملات: ${fromCurrency} -> ${toCurrency}`);
+        return amount;
+    }
+    
+    // التحويل عبر العملة الأساسية
+    const amountInBase = amount * rates[fromCurrency];
+    const convertedAmount = amountInBase / rates[toCurrency];
+    
+    return convertedAmount;
+}
+
+// دالة لتنسيق المبالغ المالية
+function formatCurrency(amount, currency = 'YER') {
+    const symbol = CURRENCY_CONFIG.SYMBOLS[currency] || currency;
+    const precision = CURRENCY_CONFIG.PRECISION[currency] || 2;
+    
+    return new Intl.NumberFormat('ar-SA', {
+        minimumFractionDigits: precision,
+        maximumFractionDigits: precision
+    }).format(amount) + ` ${symbol}`;
+}
+
+// دالة للتحقق من صحة رقم الهاتف
+function validatePhoneNumber(phone) {
+    const phoneRegex = /^\+?[\d\s\-\(\)]{8,}$/;
+    return phoneRegex.test(phone);
+}
+
+// دالة للتحقق من صحة البريد الإلكتروني
+function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// ==================== 5. تصدير الثوابت والدوال ====================
+
 // تصدير الثوابت والدوال إلى النطاق العام (window) لضمان الوصول إليها من الملفات الأخرى
 if (typeof window !== 'undefined') {
     window.CURRENCY_CONFIG = CURRENCY_CONFIG;
@@ -693,16 +667,60 @@ if (typeof window !== 'undefined') {
     window.PURCHASE_CONFIG = PURCHASE_CONFIG;
     window.TAX_CONFIG = TAX_CONFIG;
     window.CHART_OF_ACCOUNTS = CHART_OF_ACCOUNTS;
+    
+    // الدوال العامة
     window.validateAccountingPeriod = validateAccountingPeriod;
     window.formatDate = formatDate;
-    window.printInvoiceHeader = printInvoiceHeader;
-    window.printInvoiceFooter = printInvoiceFooter;
-    window.getCompanyPrintInfo = getCompanyPrintInfo;
     window.updateAccountingPeriod = updateAccountingPeriod;
-    
-    // الدوال المحاسبية المضافة حديثاً
     window.validateAccountCode = validateAccountCode;
     window.getAccountType = getAccountType;
     window.checkJournalEntryBalance = checkJournalEntryBalance;
     window.calculateAccountBalance = calculateAccountBalance;
+    window.generateJournalEntry = generateJournalEntry;
+    window.convertCurrency = convertCurrency;
+    window.formatCurrency = formatCurrency;
+    window.validatePhoneNumber = validatePhoneNumber;
+    window.validateEmail = validateEmail;
+    
+    console.log('تم تحميل M-core.js بنجاح');
+}
+
+// ==================== 6. تهيئة البيانات الافتراضية ====================
+
+// دالة لتهيئة البيانات الافتراضية للنظام
+function initializeSystemDefaults() {
+    try {
+        // التحقق من إعدادات الفترة المحاسبية
+        if (!ACCOUNTING_PERIOD.CURRENT_PERIOD.periodName) {
+            const currentYear = new Date().getFullYear();
+            ACCOUNTING_PERIOD.CURRENT_PERIOD.periodName = `الفترة السنوية ${currentYear}`;
+            ACCOUNTING_PERIOD.CURRENT_PERIOD.startDate = `${currentYear}-01-01`;
+            ACCOUNTING_PERIOD.CURRENT_PERIOD.endDate = `${currentYear}-12-31`;
+        }
+        
+        // التحقق من إعدادات الشركة
+        if (!COMPANY_INFO.BASIC.name || COMPANY_INFO.BASIC.name === 'اسم الشركة أو المحل') {
+            console.warn('يرجى تحديث معلومات الشركة في ملف M-core.js');
+        }
+        
+        // التحقق من أسعار الصرف
+        Object.keys(CURRENCY_CONFIG.SYMBOLS).forEach(currency => {
+            if (!CURRENCY_CONFIG.DEFAULT_EXCHANGE_RATES[currency]) {
+                console.warn(`سعر الصرف غير محدد للعملة: ${currency}`);
+            }
+        });
+        
+        console.log('تم تهيئة النظام بنجاح');
+        return true;
+    } catch (error) {
+        console.error('خطأ في تهيئة النظام:', error);
+        return false;
+    }
+}
+
+// تشغيل التهيئة تلقائياً عند تحميل الملف
+if (typeof window !== 'undefined') {
+    window.addEventListener('load', () => {
+        setTimeout(initializeSystemDefaults, 100);
+    });
 }
